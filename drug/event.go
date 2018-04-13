@@ -1,7 +1,8 @@
 package drug
 
 type Event struct {
-	SafetyReportID      string       `json:"safetyreport" bson:"safetyreport,omitempty"`
+	SrcFile             string       `json:"src" bson:"src"`
+	SafetyReportID      string       `json:"safetyreport,omitempty" bson:"safetyreport,omitempty"`
 	SafetyReportVersion string       `json:"safetyreportversion,omitempty" bson:"safetyreportversion,omitempty"`
 	ReceiveDate         YearMonthDay `json:"receivedate,omitempty" bson:"receivedate,omitempty"`
 

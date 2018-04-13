@@ -1,6 +1,7 @@
 package main
 
 import (
+	"path"
 	"strings"
 )
 
@@ -27,25 +28,24 @@ type Partition struct {
 	File    string  `json:"file"`
 }
 
-func (parts Partitions) Year(year string) Partitions {
+func (parts Partitions) Filter(year, quarter string) Partitions {
 	var filteredParts Partitions
 
 	for _, part := range parts {
-		if strings.HasPrefix(part.Name, year) {
-			filteredParts = append(filteredParts, part)
+		dir := path.Dir(part.File)
+		slashIndex := strings.LastIndex(dir, "/")
+		if strings.Contains(dir[slashIndex+1:], "-") {
+			continue
 		}
-	}
+		yearVal, quarterVal := dir[slashIndex+1:][:4], dir[slashIndex+1:][4:]
 
-	return filteredParts
-}
-
-func (parts Partitions) Quarter(quarter string) Partitions {
-	var filteredParts Partitions
-
-	for _, part := range parts {
-		if strings.Contains(part.Name, quarter) {
-			filteredParts = append(filteredParts, part)
+		if year != "" && year != yearVal {
+			continue
 		}
+		if quarter != "" && quarter != quarterVal {
+			continue
+		}
+		filteredParts = append(filteredParts, part)
 	}
 
 	return filteredParts

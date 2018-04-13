@@ -12,7 +12,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/buger/jsonparser"
 	"github.com/crhntr/openfda/drug"
 	"github.com/globalsign/mgo"
 )
@@ -134,29 +133,24 @@ func main() {
 
 			fmt.Println(count)
 		case "stats":
-			var count int
+			counts := map[string]int{}
+			downloads := OpenDownloads()
+			fmt.Printf("parts: %d\n", len(downloads.Results.Drug.Event.Partitions))
 
-			eachFile(func(f *os.File, _ string) {
-				data, err := ioutil.ReadAll(f)
-				if err != nil {
-					return
-				}
+			for _, part := range downloads.Results.Drug.Event.Partitions {
+				_, pat := ShiftPath(part.File)
+				_, pat = ShiftPath(pat) // drug
+				_, pat = ShiftPath(pat) // event
+				_, pat = ShiftPath(pat) // event
+				qt, _ := ShiftPath(pat)
+				counts[qt] += part.Records
+				fmt.Printf("%10d %10f %s %s\n", part.Records, part.Size, qt, part.File)
+			}
 
-				data, _, _, _ = jsonparser.Get(data, "results")
-				jsonparser.ArrayEach(
-					data,
-					func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-						var event drug.Event
-						if err := json.Unmarshal(value, &event); err != nil {
-							log.Println(err)
-						}
+			for key, val := range counts {
+				fmt.Printf("%s: %d\n", key, val)
+			}
 
-						fmt.Println(event)
-					})
-				count++
-			})
-
-			fmt.Println(count)
 		}
 	}
 }
@@ -201,4 +195,13 @@ func OpenDownloads() Downloads {
 		panic(err)
 	}
 	return downloads
+}
+
+func ShiftPath(p string) (head, tail string) {
+	p = path.Clean("/" + p)
+	i := strings.Index(p[1:], "/") + 1
+	if i <= 0 {
+		return p[1:], "/"
+	}
+	return p[1:i], p[i:]
 }

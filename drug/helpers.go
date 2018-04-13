@@ -1,6 +1,7 @@
 package drug
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 )
@@ -10,7 +11,19 @@ type YearMonthDay struct {
 }
 
 func (ct *YearMonthDay) UnmarshalJSON(b []byte) (err error) {
+	b = bytes.Trim(b, "\"")
 	ct.Time, err = time.Parse("20060102", string(b))
+	if err == nil {
+		return nil
+	}
+	ct.Time, err = time.Parse("200601", string(b))
+	if err == nil {
+		return nil
+	}
+	ct.Time, err = time.Parse("2006", string(b))
+	if err == nil {
+		return nil
+	}
 	return err
 }
 

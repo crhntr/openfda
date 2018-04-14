@@ -1,7 +1,6 @@
 package drug
 
 import (
-	"fmt"
 	"regexp"
 )
 
@@ -109,12 +108,12 @@ type Label struct {
 	SPLUnclassifiedSection            []string `json:"spl_unclassified_section"` // openFD bson:"spl_unclassified_section,omitempty"` // openF,omitempty"A
 
 	// openFDA
-	OpenFDA OpenFDA `json:"openfda,omitempty"`
+	// OpenFDA OpenFDA `json:"openfda,omitempty"`
 }
 
-func (label Label) String() string {
-	return fmt.Sprintf("%s \"%s\" \"%s\"", label.SetID, label.OpenFDA.BrandName, label.OpenFDA.GenericName)
-}
+// func (label Label) String() string {
+// 	return fmt.Sprintf("%s \"%s\" \"%s\"", label.SetID ) /* label.OpenFDA.BrandName, label.OpenFDA.GenericName)
+// }
 
 // IsValidLabelID checks to ensure that a string is a valid id
 func IsValidLabelID(id string) bool {

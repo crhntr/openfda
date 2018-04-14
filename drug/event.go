@@ -1,7 +1,5 @@
 package drug
 
-import "time"
-
 type Event struct {
 	FileName string `json:"fileName" bson:"fn"`
 	FileHash string `json:"fileHash" bson:"fh"`
@@ -130,3 +128,86 @@ const (
 	BSONKeyEventMedDRAVersion = "drav"
 	BSONKeyEventOutcome       = "oc"
 )
+
+
+type RawEvent struct {
+	SafetyReportID      string       `json:"safetyreport,omitempty"`
+	SafetyReportVersion string       `json:"safetyreportversion,omitempty"`
+	ReceiveDate         YearMonthDay `json:"receivedate,omitempty"`
+
+	ReceiptDate YearMonthDay `json:"receiptdate,omitempty"`
+
+	Serious                      string       `json:"serious,omitempty"`
+	SeriousnessCongenitalAnomali string       `json:"seriousnesscongenitalanomali,omitempty"`
+	SeriousnessDeath             string       `json:"seriousnessdeath,omitempty"`
+	SeriousnessDisabling         string       `json:"seriousnessdisabling,omitempty"`
+	SeriousnessHospitalization   string       `json:"seriousnesshospitalization,omitempty"`
+	SeriousnessLifeThreatening   string       `json:"seriousnesslifethreatening,omitempty"`
+	SeriousnessOther             string       `json:"seriousnessother,omitempty"`
+	TransmissionDate             YearMonthDay `json:"traqnsmissiondate,omitempty"`
+
+	Duplicate            string `json:"duplicate,omitempty"`
+	CompanyNumber        string `json:"companynumb,omitempty"`
+	OccurCountry         string `json:"occurcountry,omitempty"`
+	PrimarySourceCountry string `json:"primarysourcecountry,omitempty"`
+	PrimarySource        struct {
+		Qualification   string `json:"qualification,omitempty"`
+		ReporterCountry string `json:"reportercountry,omitempty"`
+	} `json:"primarysource,omitempty"`
+	ReportDuplicate struct {
+		DuplicateSource string `json:"duplicatesource,omitempty"`
+		DuplicateNumber string `json:"duplicatenumb,omitempty"`
+	} `json:"reportduplicate,omitempty"`
+	Sender struct {
+		SenderType         string `json:"sendertype,omitempty"`
+		SenderOrganization string `json:"senderorganization,omitempty"`
+	} `json:"sender,omitempty"`
+	Receiver struct {
+		ReceiverType         string `json:"receivertype,omitempty"`
+		ReceiverOrganization string `json:"receiverorganization,omitempty"`
+	} `json:"receiver,omitempty"`
+
+	Patient struct {
+		OnsetAge     string `json:"patientonsetage,omitempty"`
+		OnsetAgeUnit string `json:"patientonsetageunit,omitempty"`
+		Sex          string `json:"patientsex,omitempty"`
+		Weight       string `json:"patientweight,omitempty"`
+		Death        struct {
+			Date YearMonthDay `json:"patientdeathdate,omitempty"`
+		} `json:"patientdeath,omitempty"`
+
+		Drugs []struct {
+			ActionDrug               string `json:"actiondrug,omitempty"`
+			Additional               string `json:"drugadditional,omitempty"`
+			CumulativeDosageNumber   string `json:"drugcumulativedosagenumb,omitempty"`
+			CumulativeDosageUnit     string `json:"drugcumulativedosageunit,omitempty"`
+			DosageForm               string `json:"drugdosageform,omitempty"`
+			IntervalDosageDefinition string `json:"drugintervaldosagedefinition,omitempty"`
+			IntervalDosageUnitNumber string `json:"drugintervaldosageunitnumb,omitempty"`
+			RecurreAdministration    string `json:"drugrecurreadministration,omitempty"`
+			SeparateDosageNumber     string `json:"drugseparatedosagenumb,omitempty"`
+			StructureDosageNumber    string `json:"drugstructuredosagenumb,omitempty"`
+			StructureDosageUnit      string `json:"drugstructuredosageunit,omitempty"`
+			AdministrationRoute      string `json:"drugadministrationroute,omitempty"`
+			AuthorizationNumber      string `json:"drugauthorizationnumb,omitempty"`
+			BatchNumber              string `json:"drugbatchnumb,omitempty"`
+			Characterization         string `json:"drugcharacterization,omitempty"`
+			Doseagetext              string `json:"drugdoseagetext,omitempty"`
+
+			StartDate YearMonthDay `json:"drugstartdate,omitempty"`
+			EndDate   YearMonthDay `json:"drugenddate,omitempty"`
+
+			Indication string `json:"drugindication,omitempty"`
+
+			TreatmentDuration     string `json:"drugtreatmentduration,omitempty"`
+			TreatmentDurationUnit string `json:"drugtreatmentdurationunit,omitempty"`
+
+			OpenFDA OpenFDA `json:"openfda,omitempty"`
+		} `json:"drug,omitempty"`
+		Reactions []struct {
+			MedDRA        string `json:"reactionmeddrapt,omitempty"`
+			MedDRAVersion string `json:"reactionmeddraversionpt,omitempty"`
+			Outcome       string `json:"reactionoutcome,omitempty"`
+		} `json:"reaction,omitempty"`
+	} `json:"patient,omitempty"`
+}

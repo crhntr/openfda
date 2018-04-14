@@ -264,6 +264,9 @@ func (rw RawEvent) Event() Event {
 	event.Reactions = make([]EventReaction, 0, len(rw.Patient.Reactions))
 
 	for _, d := range rw.Patient.Drugs {
+		if d.Indication == "PRODUCT USED FOR UNKNOWN INDICATION" {
+			d.Indication = ""
+		}
 		event.Drugs = append(event.Drugs, EventDrug{
 			ActionDrug:               d.ActionDrug,
 			Additional:               d.Additional,

@@ -103,6 +103,79 @@ func main() {
 					log.Printf("%d %s %s", i, fileName, err)
 				}
 			}
+		case "import-files":
+			session, err := mgo.Dial(":27017")
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+
+			for i, fname := range jsonFiles {
+				if err := func(i int, filename string) error {
+					log.Printf("%d %q", i, filename)
+
+					f, err := os.Open(filename)
+					if err != nil {
+						return err
+					}
+					defer f.Close()
+
+					dec := json.NewDecoder(f)
+
+					for {
+						t, err := dec.Token()
+						if err == io.EOF {
+							return nil
+						}
+						if err != nil {
+							return err
+						}
+						// fmt.Printf("%T %v\n", t, t)
+						if str, ok := t.(string); ok && str == "results" {
+							t, err = dec.Token()
+							if err != nil {
+								return err
+							}
+							if val, ok := t.(json.Delim); ok && val == json.Delim('[') {
+								break
+							}
+						}
+					}
+
+					for {
+						var rawEvent drug.RawEvent
+						if err := dec.Decode(&rawEvent); err != nil {
+							return err
+						}
+
+						event, drugData := rawEvent.Event()
+						event.FileName = filename
+
+						if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
+							if !mgo.IsDup(err) {
+								log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+							}
+						}
+
+						for _, d := range drugData {
+							if d.ID != "" {
+								if err := session.DB("openfda").C("drug").Insert(d); err != nil {
+									if !mgo.IsDup(err) {
+										log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+									}
+								}
+							}
+						}
+
+						if !dec.More() {
+							return nil
+						}
+					}
+					return nil
+				}(i, fname); err != nil {
+					log.Printf("%d %s %s", i, fname, err)
+				}
+			}
 		case "download":
 			downloads := OpenDownloads()
 			size := downloads.Results.Drug.Event.Size()

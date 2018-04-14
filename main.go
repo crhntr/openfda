@@ -38,33 +38,70 @@ func main() {
 			}
 
 			for i, fileName := range flag.Args()[2:] {
-				log.Printf("%d %q", i, fileName)
+				if err := func(i int, filename string) error {
+					log.Printf("%d %q", i, fileName)
 
-				data := struct {
-					Results []drug.Event `json:"results"`
-				}{}
+					f, err := os.Open(fileName)
+					if err != nil {
+						return err
+					}
+					defer f.Close()
 
-				f, err := os.Open(fileName)
-				if err != nil {
-					log.Printf("%d %s %s", i, fileName, err)
-					continue
-				}
-				defer f.Close()
+					dec := json.NewDecoder(f)
 
-				err = json.NewDecoder(f).Decode(&data)
-				if err != nil {
-					log.Printf("%d %s %s", i, fileName, err)
-					continue
-				}
-
-				for _, event := range data.Results {
-					if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
-						if !mgo.IsDup(err) {
-							log.Printf("%d %s %s %s", i, event.SafetyReportID, fileName, err)
+					for {
+						t, err := dec.Token()
+						if err == io.EOF {
+							return nil
+						}
+						if err != nil {
+							return err
+						}
+						// fmt.Printf("%T %v\n", t, t)
+						if str, ok := t.(string); ok && str == "results" {
+							t, err = dec.Token()
+							if err != nil {
+								return err
+							}
+							if val, ok := t.(json.Delim); ok && val == json.Delim('[') {
+								break
+							}
 						}
 					}
-				}
 
+					for {
+						var rawEvent drug.RawEvent
+						if err := dec.Decode(&rawEvent); err != nil {
+							return err
+						}
+
+						event, drugData := rawEvent.Event()
+						event.FileName = fileName
+
+						if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
+							if !mgo.IsDup(err) {
+								log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+							}
+						}
+
+						for _, d := range drugData {
+							if d.ID != "" {
+								if err := session.DB("openfda").C("drug").Insert(d); err != nil {
+									if !mgo.IsDup(err) {
+										log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+									}
+								}
+							}
+						}
+
+						if !dec.More() {
+							return nil
+						}
+					}
+					return nil
+				}(i, fileName); err != nil {
+					log.Printf("%d %s %s", i, fileName, err)
+				}
 			}
 		case "download":
 			downloads := OpenDownloads()
@@ -108,30 +145,68 @@ func main() {
 				return
 			}
 
-			var count int
-
 			eachFile(func(f *os.File, filename string) {
-				data := struct {
-					Results []drug.Event `json:"results"`
-				}{}
+				log.Printf("%d %q", i, fileName)
 
-				err = json.NewDecoder(f).Decode(&data)
+				f, err := os.Open(fileName)
 				if err != nil {
-					log.Printf("%s %s", filename, err)
-					return
+					return err
 				}
+				defer f.Close()
 
-				for _, event := range data.Results {
-					event.SrcFile = filename
-					if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
-						if !mgo.IsDup(err) {
-							log.Printf("%s %s %s", event.SafetyReportID, filename, err)
+				dec := json.NewDecoder(f)
+
+				for {
+					t, err := dec.Token()
+					if err == io.EOF {
+						return nil
+					}
+					if err != nil {
+						return err
+					}
+					// fmt.Printf("%T %v\n", t, t)
+					if str, ok := t.(string); ok && str == "results" {
+						t, err = dec.Token()
+						if err != nil {
+							return err
+						}
+						if val, ok := t.(json.Delim); ok && val == json.Delim('[') {
+							break
 						}
 					}
 				}
-			})
 
-			fmt.Println(count)
+				for {
+					var rawEvent drug.RawEvent
+					if err := dec.Decode(&rawEvent); err != nil {
+						return err
+					}
+
+					event, drugData := rawEvent.Event()
+					event.FileName = fileName
+
+					if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
+						if !mgo.IsDup(err) {
+							log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+						}
+					}
+
+					for _, d := range drugData {
+						if d.ID != "" {
+							if err := session.DB("openfda").C("drug").Insert(d); err != nil {
+								if !mgo.IsDup(err) {
+									log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+								}
+							}
+						}
+					}
+
+					if !dec.More() {
+						return nil
+					}
+				}
+				return nil
+			})
 		case "stats":
 			counts := map[string]int{}
 			downloads := OpenDownloads()

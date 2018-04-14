@@ -1,10 +1,10 @@
 package drug
 
-import "time"
+import ("time"
+"strconv")
 
 type Event struct {
 	FileName string `json:"fileName" bson:"fn"`
-	FileHash string `json:"fileHash" bson:"fh"`
 
 	SafetyReportID      string `json:"safetyreport,omitempty" bson:"rid,omitempty"`
 	SafetyReportVersion string `json:"safetyreportversion,omitempty" bson:"rv,omitempty"`
@@ -67,9 +67,11 @@ type EventDrug struct {
 
 	Indication string `json:"indication,omitempty" bson:"ind,omitempty"`
 
-	TreatmentDuration time.Duration `json:"treatmentDuration,omitempty" bson:"dur,omitempty"`
+	TreatmentDurationValue time.Duration `json:"treatmentDuration,omitempty" bson:"dur,omitempty"`
+	TreatmentDurationNumber string `json:"drugtreatmentduration,omitempty" bson:"drugtreatmentduration,omitempty"`
+	TreatmentDurationUnit string `json:"drugtreatmentdurationunit,omitempty" bson:"drugtreatmentdurationunit,omitempty"`
 
-	// OpenFDA OpenFDA `json:"openfda,omitempty" bson:"openfda,omitempty"`
+	OpenFDA OpenFDA `json:"openfda,omitempty" bson:"openfda,omitempty"`
 }
 
 type EventReaction struct {
@@ -211,8 +213,10 @@ type RawEventDrug struct {
 
 	Indication string `json:"drugindication,omitempty" bson:"drugindication,omitempty"`
 
-	TreatmentDuration     string `json:"drugtreatmentduration,omitempty" bson:"drugtreatmentduration,omitempty"`
+	TreatmentDurationNumber     string `json:"drugtreatmentduration,omitempty" bson:"drugtreatmentduration,omitempty"`
 	TreatmentDurationUnit string `json:"drugtreatmentdurationunit,omitempty" bson:"drugtreatmentdurationunit,omitempty"`
+
+	OpenFDA OpenFDA `json:"openfda,omitempty" bson:"openfda,omitempty"`
 }
 
 type RawEventReaction struct {
@@ -221,7 +225,8 @@ type RawEventReaction struct {
 	Outcome       string `json:"reactionoutcome,omitempty" bson:"reactionoutcome,omitempty"`
 }
 
-func (rw RawEvent) Event() Event {
+func (rw RawEvent) Event() (Event, []OpenFDA) {
+	var drugData []OpenFDA
 	var event = Event{
 		SafetyReportID:      rw.SafetyReportID,
 		SafetyReportVersion: rw.SafetyReportVersion,
@@ -267,7 +272,9 @@ func (rw RawEvent) Event() Event {
 		if d.Indication == "PRODUCT USED FOR UNKNOWN INDICATION" {
 			d.Indication = ""
 		}
-		event.Drugs = append(event.Drugs, EventDrug{
+
+		ed := EventDrug{
+			MedicinalProduct:         d.MedicinalProduct,
 			ActionDrug:               d.ActionDrug,
 			Additional:               d.Additional,
 			CumulativeDosageNumber:   d.CumulativeDosageNumber,
@@ -286,11 +293,22 @@ func (rw RawEvent) Event() Event {
 			Doseagetext:              d.Doseagetext,
 			StartDate:                d.StartDate,
 			EndDate:                  d.EndDate,
+			TreatmentDurationNumber: d.TreatmentDurationNumber,
+		TreatmentDurationUnit: d.TreatmentDurationUnit,
+			TreatmentDurationValue: ParseDuration(d.TreatmentDurationUnit, d.TreatmentDurationNumber),
+
 			Indication:               d.Indication,
-			// TreatmentDuration: d.TreatmentDuration,
-			// TreatmentDurationUnit: d.TreatmentDurationUnit,
-			// OpenFDA: d.OpenFDA,
-		})
+			OpenFDA: d.OpenFDA,
+		}
+		if len(d.OpenFDA.SPLSetID) > 0 {
+			d.OpenFDA.SetID = d.OpenFDA.SPLSetID[0]
+		}
+		if len(d.OpenFDA.SPLID) > 0 {
+			d.OpenFDA.ID = d.OpenFDA.SPLID[0]
+		}
+		drugData = append(drugData, d.OpenFDA)
+
+		event.Drugs = append(event.Drugs, ed)
 	}
 
 	for _, r := range rw.Patient.Reactions {
@@ -301,7 +319,7 @@ func (rw RawEvent) Event() Event {
 		})
 	}
 
-	return event
+	return event, drugData
 }
 
 type EventOpenFDA struct {
@@ -327,4 +345,28 @@ type EventOpenFDA struct {
 
 	// Undocumented Fields Found In Responses
 	IsOriginalPackager []bool `json:"is_original_packager,omitempty" bson:"is_original_packager,omitempty"`
+}
+
+func ParseDuration(unit, number string) time.Duration {
+	n, err := strconv.Atoi(number)
+	if err != nil {
+		return time.Duration(0)
+	}
+	nd := time.Duration(n)
+	switch unit {
+	case "801": // Year
+		return time.Duration(364.25 * 24 * time.Hour * nd )
+	case "802": // Month
+		return time.Duration(30 * 24 * time.Hour * nd)
+	case "803": // Week
+		return time.Duration(30 * 24 * time.Hour * nd)
+	case "804": // Day
+		return time.Duration(24 * time.Hour * nd)
+	case "805": // Hour
+		return time.Duration(time.Hour * nd)
+	case "806": // Minute
+		return time.Duration(time.Minute * nd)
+	default:
+		return time.Duration(0)
+	}
 }

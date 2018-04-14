@@ -119,10 +119,10 @@ func main() {
 						return
 					}
 
-					log.Printf("%d %q %.2f %.2f", i, part.Name, part.Size, (downlaoded/size)*100)
+					log.Printf("  %d %q %.2f %.2f", i, part.Name, part.Size, (downlaoded/size)*100)
 					resp, err := http.Get(part.File)
 					if err != nil {
-						log.Printf("%d %s %s", i, part.File, err)
+						log.Printf("  %d %s %s", i, part.File, err)
 						return
 					}
 					defer resp.Body.Close()
@@ -145,14 +145,8 @@ func main() {
 				return
 			}
 
-			eachFile(func(f *os.File, filename string) {
-				log.Printf("%d %q", i, fileName)
-
-				f, err := os.Open(fileName)
-				if err != nil {
-					return err
-				}
-				defer f.Close()
+			eachFile(func(f *os.File, fileName string) error {
+				log.Printf("-> %q", fileName)
 
 				dec := json.NewDecoder(f)
 
@@ -187,7 +181,7 @@ func main() {
 
 					if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
 						if !mgo.IsDup(err) {
-							log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+							log.Printf("  %s %s %s", event.SafetyReportID, fileName, err)
 						}
 					}
 
@@ -195,7 +189,7 @@ func main() {
 						if d.ID != "" {
 							if err := session.DB("openfda").C("drug").Insert(d); err != nil {
 								if !mgo.IsDup(err) {
-									log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
+									log.Printf("  %s %s %s", event.SafetyReportID, fileName, err)
 								}
 							}
 						}
@@ -230,7 +224,7 @@ func main() {
 	}
 }
 
-func eachFile(fun func(f *os.File, fname string)) {
+func eachFile(fun func(f *os.File, fname string) error) {
 	downloads := OpenDownloads()
 
 	parts := downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter)
@@ -248,12 +242,14 @@ func eachFile(fun func(f *os.File, fname string)) {
 				}
 				f, err := os.Open(path.Join(dir, file.Name()))
 				if err != nil {
-					log.Printf("%d %s %s", i, file.Name(), err)
+					log.Printf("  %d %s %s", i, file.Name(), err)
 					continue
 				}
 				func() {
 					defer f.Close()
-					fun(f, part.File)
+					if err := fun(f, part.File); err != nil {
+						log.Printf("  %q in %q", err, part.File)
+					}
 				}()
 			}
 		}(i, part)

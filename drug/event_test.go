@@ -28,9 +28,6 @@ func TestEvent_Encoding(t *testing.T) {
 	}
 
 	for _, re := range rawEvents {
-		for _, d := range re.Patient.Drugs {
-			t.Log(d)
-		}
 		events = append(events, re.Event())
 	}
 

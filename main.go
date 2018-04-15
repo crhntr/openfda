@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -32,39 +31,42 @@ func main() {
 			importAll()
 		case "calc":
 			calcSize()
+		case "count-files":
+			var count int
+			eachFile(func(f *os.File) error {
+				count++
+				return nil
+			})
+			fmt.Printf("\n\nfound %d files\n\n", count)
+		case "ls":
+			eachFile(func(f *os.File) error {
+				fmt.Println(f.Name())
+				return nil
+			})
 		}
 	}
 }
 
-func eachFile(fun func(f *os.File, fname string) error) {
+func eachFile(fun func(f *os.File) error) {
 	downloads := OpenDownloads()
 
 	parts := downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter)
 
-	for i, part := range parts {
-		log.Print(part.Name)
+	for i, p := range parts {
 		func(i int, part Partition) {
-			dir := path.Dir(strings.TrimPrefix(part.File, "https://download.open.fda.gov/"))
-			dir = path.Join(*outPath, dir)
-
-			files, _ := ioutil.ReadDir(dir)
-			for _, file := range files {
-				if file.Name() == ".DS_Store" {
-					continue
-				}
-				f, err := os.Open(path.Join(dir, file.Name()))
-				if err != nil {
-					log.Printf("  %d %s %s", i, file.Name(), err)
-					continue
-				}
-				func() {
-					defer f.Close()
-					if err := fun(f, part.File); err != nil {
-						log.Printf("  %q in %q", err, part.File)
-					}
-				}()
+			filename := path.Join(*outPath, part.File[len("https://download.open.fda.gov/"):len(part.File)-len(".zip")])
+			f, err := os.Open(filename)
+			if err != nil {
+				log.Printf("  %d %s %s", i, filename, err)
+				return
 			}
-		}(i, part)
+			func() {
+				defer f.Close()
+				if err := fun(f); err != nil {
+					log.Printf("  %q in %q", err, filename)
+				}
+			}()
+		}(i, p)
 	}
 }
 

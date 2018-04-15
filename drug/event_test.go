@@ -28,7 +28,7 @@ func TestEvent_Encoding(t *testing.T) {
 	}
 
 	for _, re := range rawEvents {
-		e, _ := re.Event()
+		e := re.Event()
 		events = append(events, e)
 	}
 

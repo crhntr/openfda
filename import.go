@@ -56,22 +56,12 @@ func importArgsInFiles() {
 					return err
 				}
 
-				event, drugData := rawEvent.Event()
+				event := rawEvent.Event()
 				event.FileName = fileName
 
 				if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
 					if !mgo.IsDup(err) {
 						log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
-					}
-				}
-
-				for _, d := range drugData {
-					if d.ID != "" {
-						if err := session.DB("openfda").C("drug").Insert(d); err != nil {
-							if !mgo.IsDup(err) {
-								log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
-							}
-						}
 					}
 				}
 
@@ -131,22 +121,12 @@ func importFiles() {
 					return err
 				}
 
-				event, drugData := rawEvent.Event()
+				event := rawEvent.Event()
 				event.FileName = filename
 
 				if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
 					if !mgo.IsDup(err) {
 						log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
-					}
-				}
-
-				for _, d := range drugData {
-					if d.ID != "" {
-						if err := session.DB("openfda").C("drug").Insert(d); err != nil {
-							if !mgo.IsDup(err) {
-								log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
-							}
-						}
 					}
 				}
 
@@ -168,7 +148,8 @@ func importAll() {
 		return
 	}
 
-	eachFile(func(f *os.File, fileName string) error {
+	eachFile(func(f *os.File) error {
+		fileName := f.Name()
 		log.Printf("-> %q", fileName)
 
 		dec := json.NewDecoder(f)
@@ -199,22 +180,12 @@ func importAll() {
 				return err
 			}
 
-			event, drugData := rawEvent.Event()
+			event := rawEvent.Event()
 			event.FileName = fileName
 
 			if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
 				if !mgo.IsDup(err) {
 					log.Printf("  %s %s %s", event.SafetyReportID, fileName, err)
-				}
-			}
-
-			for _, d := range drugData {
-				if d.ID != "" {
-					if err := session.DB("openfda").C("drug").Insert(d); err != nil {
-						if !mgo.IsDup(err) {
-							log.Printf("  %s %s %s", event.SafetyReportID, fileName, err)
-						}
-					}
 				}
 			}
 

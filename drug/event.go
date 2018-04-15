@@ -227,8 +227,7 @@ type RawEventReaction struct {
 	Outcome       string `json:"reactionoutcome,omitempty" bson:"reactionoutcome,omitempty"`
 }
 
-func (rw RawEvent) Event() (Event, []OpenFDA) {
-	var drugData []OpenFDA
+func (rw RawEvent) Event() Event {
 	var event = Event{
 		SafetyReportID:      rw.SafetyReportID,
 		SafetyReportVersion: rw.SafetyReportVersion,
@@ -308,7 +307,6 @@ func (rw RawEvent) Event() (Event, []OpenFDA) {
 		if len(ed.OpenFDA.SPLID) > 0 {
 			ed.OpenFDA.ID = ed.OpenFDA.SPLID[0]
 		}
-		drugData = append(drugData, ed.OpenFDA)
 
 		event.Drugs = append(event.Drugs, ed)
 	}
@@ -321,7 +319,7 @@ func (rw RawEvent) Event() (Event, []OpenFDA) {
 		})
 	}
 
-	return event, drugData
+	return event
 }
 
 func ParseDuration(unit, number string) time.Duration {

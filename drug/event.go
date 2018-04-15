@@ -302,13 +302,13 @@ func (rw RawEvent) Event() (Event, []OpenFDA) {
 			Indication: d.Indication,
 			OpenFDA:    d.OpenFDA,
 		}
-		if len(d.OpenFDA.SPLSetID) > 0 {
-			d.OpenFDA.SetID = d.OpenFDA.SPLSetID[0]
+		if len(ed.OpenFDA.SPLSetID) > 0 {
+			ed.OpenFDA.SetID = ed.OpenFDA.SPLSetID[0]
 		}
-		if len(d.OpenFDA.SPLID) > 0 {
-			d.OpenFDA.ID = d.OpenFDA.SPLID[0]
+		if len(ed.OpenFDA.SPLID) > 0 {
+			ed.OpenFDA.ID = ed.OpenFDA.SPLID[0]
 		}
-		drugData = append(drugData, d.OpenFDA)
+		drugData = append(drugData, ed.OpenFDA)
 
 		event.Drugs = append(event.Drugs, ed)
 	}

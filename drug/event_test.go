@@ -28,9 +28,8 @@ func TestEvent_Encoding(t *testing.T) {
 	}
 
 	for _, re := range rawEvents {
-		if e := re.Event(); !e.Duplicate {
-			events = append(events, e)
-		}
+		e, _ := re.Event()
+		events = append(events, e)
 	}
 
 	buf, err := bson.Marshal(events)

@@ -1,7 +1,9 @@
 package drug
 
-import ("time"
-"strconv")
+import (
+	"strconv"
+	"time"
+)
 
 type Event struct {
 	FileName string `json:"fileName" bson:"fn"`
@@ -67,9 +69,9 @@ type EventDrug struct {
 
 	Indication string `json:"indication,omitempty" bson:"ind,omitempty"`
 
-	TreatmentDurationValue time.Duration `json:"treatmentDuration,omitempty" bson:"dur,omitempty"`
-	TreatmentDurationNumber string `json:"drugtreatmentduration,omitempty" bson:"drugtreatmentduration,omitempty"`
-	TreatmentDurationUnit string `json:"drugtreatmentdurationunit,omitempty" bson:"drugtreatmentdurationunit,omitempty"`
+	TreatmentDurationValue  time.Duration `json:"treatmentDuration,omitempty" bson:"dur,omitempty"`
+	TreatmentDurationNumber string        `json:"drugtreatmentduration,omitempty" bson:"drugtreatmentduration,omitempty"`
+	TreatmentDurationUnit   string        `json:"drugtreatmentdurationunit,omitempty" bson:"drugtreatmentdurationunit,omitempty"`
 
 	OpenFDA OpenFDA `json:"openfda,omitempty" bson:"openfda,omitempty"`
 }
@@ -213,8 +215,8 @@ type RawEventDrug struct {
 
 	Indication string `json:"drugindication,omitempty" bson:"drugindication,omitempty"`
 
-	TreatmentDurationNumber     string `json:"drugtreatmentduration,omitempty" bson:"drugtreatmentduration,omitempty"`
-	TreatmentDurationUnit string `json:"drugtreatmentdurationunit,omitempty" bson:"drugtreatmentdurationunit,omitempty"`
+	TreatmentDurationNumber string `json:"drugtreatmentduration,omitempty" bson:"drugtreatmentduration,omitempty"`
+	TreatmentDurationUnit   string `json:"drugtreatmentdurationunit,omitempty" bson:"drugtreatmentdurationunit,omitempty"`
 
 	OpenFDA OpenFDA `json:"openfda,omitempty" bson:"openfda,omitempty"`
 }
@@ -293,12 +295,12 @@ func (rw RawEvent) Event() (Event, []OpenFDA) {
 			Doseagetext:              d.Doseagetext,
 			StartDate:                d.StartDate,
 			EndDate:                  d.EndDate,
-			TreatmentDurationNumber: d.TreatmentDurationNumber,
-		TreatmentDurationUnit: d.TreatmentDurationUnit,
-			TreatmentDurationValue: ParseDuration(d.TreatmentDurationUnit, d.TreatmentDurationNumber),
+			TreatmentDurationNumber:  d.TreatmentDurationNumber,
+			TreatmentDurationUnit:    d.TreatmentDurationUnit,
+			TreatmentDurationValue:   ParseDuration(d.TreatmentDurationUnit, d.TreatmentDurationNumber),
 
-			Indication:               d.Indication,
-			OpenFDA: d.OpenFDA,
+			Indication: d.Indication,
+			OpenFDA:    d.OpenFDA,
 		}
 		if len(d.OpenFDA.SPLSetID) > 0 {
 			d.OpenFDA.SetID = d.OpenFDA.SPLSetID[0]
@@ -330,7 +332,7 @@ func ParseDuration(unit, number string) time.Duration {
 	nd := time.Duration(n)
 	switch unit {
 	case "801": // Year
-		return time.Duration(364.25 * 24 * time.Hour * nd )
+		return time.Duration(364.25 * 24 * time.Hour * nd)
 	case "802": // Month
 		return time.Duration(30 * 24 * time.Hour * nd)
 	case "803": // Week

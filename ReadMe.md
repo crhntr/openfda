@@ -18,3 +18,5 @@ all special edge cases have been handled.
 Note that the data set is huge it is greater than 250 gigs of compressed <filename>.json.zip files for the drug event data alone. Plan accordingly.
 I used the `unzip` unix tool to decompress the json files.
 The json parsing has been somewhat optimized to deal with the huge data (otherwise it would not run on a macbook air with 8gigs of memory).
+
+![An Example](https://raw.githubusercontent.com/crhntr/openfda/branch/assets/exampleImage.png)

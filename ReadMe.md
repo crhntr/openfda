@@ -19,4 +19,16 @@ Note that the data set is huge it is greater than 250 gigs of compressed <filena
 I used the `unzip` unix tool to decompress the json files.
 The json parsing has been somewhat optimized to deal with the huge data (otherwise it would not run on a macbook air with 8gigs of memory).
 
+
+## Example Research
+
+These data are collected for adverse events (AE) with patients taking beta-blockers, where the beta-blocker is suspected as the cause of the AE. They contain events pulled from 2012q1-2017q3.
+
 ![An Example](https://github.com/crhntr/openfda/blob/master/assets/exampleImage.png?raw=true)
+```
+         | total | other | life threatening | hospitalization | disabling | death | congenital anomali |
+|--------|-------|-------|------------------|-----------------|-----------|-------|--------------------|
+| total  | 1794  | 663   | 137              | 798             | 104       | 146   | 7                  |
+| male   | 955   | 283   | 81               | 520             | 48        | 65    | 6                  |
+| female | 839   | 380   | 56               | 278             | 56        | 81    | 1                  | 
+```

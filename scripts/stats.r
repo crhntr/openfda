@@ -23,8 +23,12 @@ observedStatistic = -0.018070628
 list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
 list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
 difs = list_m - list_f
-pvalue = sum(difs <= -observedStatistic)/simulationNum + sum(difs >= observedStatistic)/simulationNum
-pvalue
+pvalueLeft = sum(difs<=-observedStatistic)/simulationNum
+pvalueRight = sum(difs>=observedStatistic)/simulationNum
+pvalueSum = pvalueLeft + pvalueRight
+pvalueRight
+pvalueLeft
+pvalueSum
 
 # hospitalization
 pi = 798/1794
@@ -32,8 +36,12 @@ observedStatistic = -0.213155776
 list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
 list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
 difs = list_m - list_f
-pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
-pvalue
+pvalueLeft = sum(difs<=-observedStatistic)/simulationNum
+pvalueRight = sum(difs>=observedStatistic)/simulationNum
+pvalueSum = pvalueLeft + pvalueRight
+pvalueRight
+pvalueLeft
+pvalueSum
 
 # disabling
 pi = 104/1794
@@ -41,8 +49,12 @@ observedStatistic = 0.016484346
 list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
 list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
 difs = list_m - list_f
-pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
-pvalue
+pvalueLeft = sum(difs<=-observedStatistic)/simulationNum
+pvalueRight = sum(difs>=observedStatistic)/simulationNum
+pvalueSum = pvalueLeft + pvalueRight
+pvalueRight
+pvalueLeft
+pvalueSum
 
 # death
 pi = 146/1794
@@ -50,8 +62,12 @@ observedStatistic = 0.028480677
 list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
 list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
 difs = list_m - list_f
-pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
-pvalue
+pvalueLeft = sum(difs<=-observedStatistic)/simulationNum
+pvalueRight = sum(difs>=observedStatistic)/simulationNum
+pvalueSum = pvalueLeft + pvalueRight
+pvalueRight
+pvalueLeft
+pvalueSum
 
 # congenitalAnomali
 pi = 7/1794
@@ -59,5 +75,9 @@ observedStatistic = -0.005090827
 list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
 list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
 difs = list_m - list_f
-pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
-pvalue
+pvalueLeft = sum(difs<=-observedStatistic)/simulationNum
+pvalueRight = sum(difs>=observedStatistic)/simulationNum
+pvalueSum = pvalueLeft + pvalueRight
+pvalueRight
+pvalueLeft
+pvalueSum

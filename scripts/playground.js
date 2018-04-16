@@ -1,219 +1,112 @@
-var drugData = {
-  'METOPROLOL': {
-    ids: [],
-    names: ['Lopressor', 'Acebutolol'],
-    pharmClass: "beta-Adrenergic Agonist [EPC]"
-  },
-  'ACEBUTOLOL HYDROCHLORIDE': {
-    ids: [],
-    names: ['Sectral', 'Acebutolol'],
-    pharmClass: "beta-Adrenergic Agonist [EPC]"
-  },
-  'ATENOLOL': {
-    ids: [],
-    names: ['Tenormin', 'ATENOLOL'],
-    pharmClass: "beta-Adrenergic Blocker [EPC]"
-  },
-  'NADOLOL': {
-    ids: [],
-    names: ['CORGARD'],
-    pharmClass: "beta-Adrenergic Blocker [EPC]"
-  },
-  'BISOPROLOL': {
-    ids: [],
-    names: ['Bisoprolol Fumarate'],
-    pharmClass: 'beta-Adrenergic Blocker [EPC]'
-  }
-}
-
-var ids = {}
-
-function getIDsForName(name) {
-  regex =  new RegExp(name, 'i')
-
-  var idList = []
-  var drugs = db.drug.find({'$or': [{'gn': regex}, {'bn': regex}]}).forEach( function (drug) {
-    idList.push(drug._id)
-  })
-  return idList
-}
-
-function getIDs() {
-  for (var key in drugData) {
-    getIDsForName(key).forEach(function (id) {
-      drugData[key].ids.push(id)
-      ids[id] = key
-    })
-
-    for (var i in drugData[key].names) {
-      getIDsForName(drugData[key].names[i]).forEach(function (id) {
-        drugData[key].ids.push(id)
-        ids[id] = key
-      })
-    }
-  }
-}
-
-getIDs()
-
-var idList = []
-for (var id in ids) {
-  idList.push(id)
-}
-
-printjson({
-  drugData: drugData,
-  ids: ids,
-  idList: idList
-})
-
-var drugNames = []
-
-for (var key in drugData) {
-  drugNames.push(new RegExp(key, 'i'))
-
-  for (var nameIndex in drugData[key]) {
-    drugNames.push(new RegExp(drugData[key][nameIndex], 'i'))
-  }
-}
-
-var match = {
-  'sex': {'$in': ['1', '2']},
-  "dup" : {"$ne": true},
-  "dgs": {"$elemMatch": {
-    "char": '1',
-    "$or": [
-      {"openfda._id": {"$in": idList}},
-      {"openfda.gn": {"$in": drugNames}},
-      {"openfda.bn": {"$in": drugNames}},
-      {"mp": {"$in": drugNames}}
-    ],
-  }}
-}
+load('scripts/metaData.js')
 
 
-var project = {
-  '_id': 1,
-  "sex": 1,
-  "seriousness": '$s',
-  'weight': '$wt',
-  'onsetAgeNumber': '$oage',
-  'onsetAgeUnit': '$ount',
-  'drugCount': { '$size': '$dgs' },
-  'drugs': {
-    '$map': {
-      'input': '$dgs',
-      'as': 'drug',
-      'in': {
-        '_id': '$$drug.openfda.id',
-        'gn': '$$drug.openfda.gn',
-        'bn': '$$drug.openfda.bn',
-        'char': '$$drug.char',
-        'md': '$$drug.mp',
-        'epc': '$$drug.openfda.epc'
-      }
-    }
-  }
-}
+
+
+
+
+
+
 
 
 /*
 
-'drug': {
-  '$arrayElemAt': [
-    '$dgs', {
-      '$indexOfArray': ['$dgs', {
-        "char": '1',
-        "$or": [
-          {"openfda._id": {"$in": idList}},
-          {"openfda.gn": {"$in": drugNames}},
-          {"openfda.bn": {"$in": drugNames}},
-          {"mp": {"$in": drugNames}}
-        ]
-      }]
-    }
-  ]
-}
+Serious           Seriousness = 0
+CongenitalAnomali Seriousness = 2
+Death 4
+Disabling 8
+Hospitalization 16
+LifeThreatening 32
+Other 64
 
-
-'drugs': {
-  '$map': {
-    'input': '$dgs',
-    'as': 'drug',
-    'in': {
-      'name': '$$drug.openfda.gn',
-      'char': '$$drug.char',
-      'md': '$$drug.mp',
-      'epc': '$$drug.openfda.epc'
-    }
-  }
-}
 
 */
 
-function rip (out) {
-  return db.getCollection('drug_event').aggregate([
-    { $match: match},
-    { $project: project},
-    { $limit: 5 } // ,
-    // { $out: out }
-  ])
+
+for (var key in drugData) {
+  db.math490_test.find().forEach(function (doc) {
+    var set = {}
+
+    set['death'] = (parseInt(doc.s)&4)!==0
+
+    set['disabling'] = (parseInt(doc.s)&8)!==0
+    set['hospitalization'] = (parseInt(doc.s)&16)!==0
+    set['lifeThreatening'] = (parseInt(doc.s)&32)!==0
+    set['other'] = (parseInt(doc.s)&64)!==0
+    set['congenitalAnomali'] = (parseInt(doc.s)&2)!==0
+
+    db.math490_test.update({'_id': doc._id}, {'$set': set})
+  })
 }
 
-//
-// function drug_event_math490_4 () {
-//   return db.getCollection('drug_event').aggregate([
-//     {'$match': {
-//       "dup" : {"$ne": true},
-//       "sex": {"$in": ["1", "2"]},
-//       "dgs": {
-//
-//         "$elemMatch": {
-//           "char": '1',
-//           "$or": [
-//             {"openfda.gn": {"$in": drugRegex}},
-//             {"mp": {"$in": drugRegex}}
-//           ],
-//         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// for (var key in drugData) {
+//   db.math490_test.updateMany({
+//     'dgs': {
+//       "$elemMatch": {
+//         "char": '1',
+//         'openfda._id': {'$in': drugData[key].ids}
 //       }
-//     }},
-//     {'$project': {
-//       '_id': 1,
-//       "sex": 1,
-//       "seriousness": '$s',
-//       'weight': '$wt',
-//       'onsetAgeNumber': '$oage',
-//       'onsetAgeUnit': '$ount',
-//       'drugs': {
-//           '$map': {
-//               'input': '$dgs',
-//               'as': 'drug',
-//               'in': {
-//                     'name': '$$drug.openfda.gn',
-//                     'characterization': '$$drug.char',
-//                     'medicinalProduct': '$$drug.mp',
-//                     'epc': '$$drug.openfda.epc'
-//               }
-//            }
-//        }
-//     }},
-//     { $out: 'drug_event_math490_4'}
-// ])
+//     }
+//   }, { '$set': {'drug': key} })
 // }
 //
 //
+// for (var key in drugData) {
+//   db.math490_test.find().forEach(function (doc) {
+//     db.math490_test.update({'_id': doc._id}, {'$set': {'numDrugs': NumberInt(doc.dgs.length)}})
+//   })
+// }
+
+// db.math490_test.find().forEach(function (doc) {
+//   db.math490_test.update({'_id': doc._id}, {'$unset': {'dgs': ''}})
+// })
+// var idList = []
+// for (var key in drugData) {
+//   idList = idList.concat(drugData[key].ids)
+// }
+
+// printjson({
+//   idList: idList.length,
+//   drugData: drugData
+// })
 //
-// function stats () {
-//   var drugs = ["ACEBUTOLOL", "ATENOLOL", "CORGARD", "NADOLOL", "LOPRESSOR", "METOPROLOL", "BISOPROLOL"]
+// function run () {
+//   var matchOr = []
 //
-//   var data = {}
-//   for (var i in drugStrings) {
-//     data[drugStrings[i]] = db.drug_event_math490_1.find({
-//       "$or": [
-//         {"drugs.name": new RegExp(drugStrings[i], 'i')},
-//         {"medicinalProduct": new RegExp(drugStrings[i], 'i')}
-//       ]
-//     }).count()
+//   for (var key in drugData) {
+//     matchOr.push({
+//       'dgs': {
+//         "$elemMatch": {
+//           "char": '1',
+//           'openfda._id': {'$in': drugData[key].ids}
+//         }
+//       }
+//     })
 //   }
-//   return data
+//
+//   return db.drug_event.aggregate([
+//     {$match: {
+//       "sex": {$in: ['1', '2']},
+//       "dup": {$ne: true},
+//       $or: matchOr
+//     }},
+//     {$project: {'dgs.openfda._id': 1, 'sex': 1,'s': 1, 'dgs.char': 1, '_id': 1}},
+//     {$out: 'drug_event_math490'}
+//   ], {
+//     "hint": 'drugs.openfda._id_1_dup_1_sex_1_s_1_drugs.char_1__id_1'
+//   })
 // }

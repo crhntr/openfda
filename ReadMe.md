@@ -19,4 +19,4 @@ Note that the data set is huge it is greater than 250 gigs of compressed <filena
 I used the `unzip` unix tool to decompress the json files.
 The json parsing has been somewhat optimized to deal with the huge data (otherwise it would not run on a macbook air with 8gigs of memory).
 
-![An Example](https://raw.githubusercontent.com/crhntr/openfda/branch/assets/exampleImage.png)
+![An Example](https://github.com/crhntr/openfda/blob/master/assets/exampleImage.png?raw=true)

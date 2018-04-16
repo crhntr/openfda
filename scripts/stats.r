@@ -1,55 +1,63 @@
-## Data copied from EXCEL
 # total	other	lifeThreatening	hospitalization	disabling	death	congenitalAnomali
 # total	1794	663	137	798	104	146	7
 # male	955	283	81	520	48	65	6
 # female	839	380	56	278	56	81	1
 #
-# 0	total	other	lifeThreatening	hospitalization	disabling	death	congenitalAnomali
-# male	0.532329989	0.426847662	0.591240876	0.651629073	0.461538462	0.445205479	0.857142857
-# female	0.467670011	0.573152338	0.408759124	0.348370927	0.538461538	0.554794521	0.142857143
 #
-# average prop.		0.369565217	0.076365663	0.444816054	0.057971014	0.081382386	0.003901895
-# observed statistic		0.146304676	-0.182481752	-0.303258145	0.076923077	0.109589041	-0.714285714
-# p-value			0	0	0	0	0
+#
+# 0	total	other	lifeThreatening	hospitalization	disabling	death	congenitalAnomali
+# male	0.532329989	0.296335079	0.084816754	0.544502618	0.05026178	0.068062827	0.006282723
+# female	0.467670011	0.452920143	0.066746126	0.331346841	0.066746126	0.096543504	0.001191895
+#
+# average prob.		0.369565217	0.076365663	0.444816054	0.057971014	0.081382386	0.003901895
+# observed statistic		0.156585064	-0.018070628	-0.213155776	0.016484346	0.028480677	-0.005090827
 
-simulationNum = 1000
+simulationNum = 100000
+
+n_m = 955
+n_f = 839
 
 # lifeThreatening
 pi = 137/1794
-list_M = rbinom(n=simulationNum, size=81, prob=pi)/simulationNum
-list_F = rbinom(n=simulationNum, size=56, prob=pi)/simulationNum
-difs = list_M - list_F
-pvalue = sum(difs <= -0.182481752)/simulationNum + sum(difs >= 0.182481752)/simulationNum
+observedStatistic = -0.018070628
+list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
+list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
+difs = list_m - list_f
+pvalue = sum(difs <= -observedStatistic)/simulationNum + sum(difs >= observedStatistic)/simulationNum
 pvalue
 
 # hospitalization
 pi = 798/1794
-list_M = rbinom(n=simulationNum, size=520, prob=pi)/simulationNum
-list_F = rbinom(n=simulationNum, size=278, prob=pi)/simulationNum
-difs = list_M - list_F
-pvalue = sum(difs<=-0.303258145)/simulationNum + sum(difs>=0.303258145)/simulationNum
+observedStatistic = -0.213155776
+list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
+list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
+difs = list_m - list_f
+pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
 pvalue
 
 # disabling
 pi = 104/1794
-list_M = rbinom(n=simulationNum, size=48, prob=pi)/simulationNum
-list_F = rbinom(n=simulationNum, size=56, prob=pi)/simulationNum
-difs = list_M - list_F
-pvalue = sum(difs<=-0.076923077)/simulationNum + sum(difs>=0.076923077)/simulationNum
+observedStatistic = 0.016484346
+list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
+list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
+difs = list_m - list_f
+pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
 pvalue
 
 # death
 pi = 146/1794
-list_M = rbinom(n=simulationNum, size=65, prob=pi)/simulationNum
-list_F = rbinom(n=simulationNum, size=81, prob=pi)/simulationNum
-difs = list_M - list_F
-pvalue = sum(difs<=-0.109589041)/simulationNum + sum(difs>=0.109589041)/simulationNum
+observedStatistic = 0.028480677
+list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
+list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
+difs = list_m - list_f
+pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
 pvalue
 
 # congenitalAnomali
 pi = 7/1794
-list_M = rbinom(n=simulationNum, size=6, prob=pi)/simulationNum
-list_F = rbinom(n=simulationNum, size=1, prob=pi)/simulationNum
-difs = list_M - list_F
-pvalue = sum(difs<=-0.714285714)/simulationNum + sum(difs>=0.714285714)/simulationNum
+observedStatistic = -0.005090827
+list_m = rbinom(n=simulationNum, n_m, prob=pi)/n_m
+list_f = rbinom(n=simulationNum, n_f, prob=pi)/n_f
+difs = list_m - list_f
+pvalue = sum(difs<=-observedStatistic)/simulationNum + sum(difs>=observedStatistic)/simulationNum
 pvalue

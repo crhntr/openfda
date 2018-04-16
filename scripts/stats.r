@@ -16,40 +16,40 @@ simulationNum = 1000
 
 # lifeThreatening
 pi = 137/1794
-list_M = rbinom(simulationNum, 81, pi)/simulationNum
-list_F = rbinom(simulationNum, 56, pi)/simulationNum
+list_M = rbinom(n=simulationNum, size=81, prob=pi)/simulationNum
+list_F = rbinom(n=simulationNum, size=56, prob=pi)/simulationNum
 difs = list_M - list_F
 pvalue = sum(difs <= -0.182481752)/simulationNum + sum(difs >= 0.182481752)/simulationNum
 pvalue
 
 # hospitalization
 pi = 798/1794
-list_M = rbinom(simulationNum, 520, pi)/simulationNum
-list_F = rbinom(simulationNum, 278, pi)/simulationNum
+list_M = rbinom(n=simulationNum, size=520, prob=pi)/simulationNum
+list_F = rbinom(n=simulationNum, size=278, prob=pi)/simulationNum
 difs = list_M - list_F
 pvalue = sum(difs<=-0.303258145)/simulationNum + sum(difs>=0.303258145)/simulationNum
 pvalue
 
 # disabling
 pi = 104/1794
-list_M = rbinom(simulationNum, 48, pi)/simulationNum
-list_F = rbinom(simulationNum, 56, pi)/simulationNum
+list_M = rbinom(n=simulationNum, size=48, prob=pi)/simulationNum
+list_F = rbinom(n=simulationNum, size=56, prob=pi)/simulationNum
 difs = list_M - list_F
 pvalue = sum(difs<=-0.076923077)/simulationNum + sum(difs>=0.076923077)/simulationNum
 pvalue
 
 # death
 pi = 146/1794
-list_M = rbinom(simulationNum, 65, pi)/simulationNum
-list_F = rbinom(simulationNum, 81, pi)/simulationNum
+list_M = rbinom(n=simulationNum, size=65, prob=pi)/simulationNum
+list_F = rbinom(n=simulationNum, size=81, prob=pi)/simulationNum
 difs = list_M - list_F
 pvalue = sum(difs<=-0.109589041)/simulationNum + sum(difs>=0.109589041)/simulationNum
 pvalue
 
 # congenitalAnomali
 pi = 7/1794
-list_M = rbinom(simulationNum, 6, pi)/simulationNum
-list_F = rbinom(simulationNum, 1, pi)/simulationNum
+list_M = rbinom(n=simulationNum, size=6, prob=pi)/simulationNum
+list_F = rbinom(n=simulationNum, size=1, prob=pi)/simulationNum
 difs = list_M - list_F
 pvalue = sum(difs<=-0.714285714)/simulationNum + sum(difs>=0.714285714)/simulationNum
 pvalue

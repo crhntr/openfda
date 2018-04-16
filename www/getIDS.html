@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Get SPL ID's</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+  </head>
+  <body>
+    <div id="app">
+      <input :placeholder="field" v-model="value"/>
+      <input placeholder="field" v-model="field" />
+      <input placeholder="skip" type="number" v-model="skip"/>
+      <input placeholder="limit" type="number" v-model="limit"/>
+
+      <button @click="getIDs">Send Request</button>
+      <pre v-if="err">{{err}}</pre>
+      <div>{{total}}</div>
+
+      <div v-for="label in results">
+        <div>"{{label.openfda.spl_id[0]}}",</div>
+      </div>
+    </div>
+  </body>
+  <script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      field: 'openfda.generic_name',
+      value: '',
+      limit: 10,
+      total: 0,
+      skip: 0,
+      err: null,
+      results: []
+    },
+    methods: {
+      getIDs: function () {
+        err = null
+        results = []
+
+        var limit = parseInt(this.limit)
+        var skip = parseInt(this.skip)
+
+        this.$http.get(`https://api.fda.gov/drug/label.json?limit=${limit}&skip=${skip}&search=${this.field}:"${this.value}"`).then(res => {
+          this.results = res.body.results || []
+          this.skip += parseInt(res.body.meta.results.limit) || 0
+          this.limit = parseInt(res.body.meta.results.limit) || 0
+          this.total = parseInt(res.body.meta.results.total) || 0
+        }, err => {
+          err = err
+        })
+      }
+    }
+  })
+
+  </script>
+</html>

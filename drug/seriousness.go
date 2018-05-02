@@ -3,8 +3,8 @@ package drug
 type Seriousness byte
 
 const (
-	Serious           Seriousness = 0
-	CongenitalAnomali Seriousness = 1 << iota
+	Serious Seriousness = 1 << iota
+	CongenitalAnomali
 	Death
 	Disabling
 	Hospitalization

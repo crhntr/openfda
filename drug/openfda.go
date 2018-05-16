@@ -1,5 +1,9 @@
 package drug
 
+const (
+	ProductTypeHumanPerscriptionDrug = "HUMAN PRESCRIPTION DRUG"
+)
+
 type OpenFDA struct {
 	ID    string `json:"_id" bson:"_id"`
 	SetID string `json:"set_id,omitempty" bson:"set_id,omitempty"`
@@ -32,4 +36,13 @@ type OpenFDA struct {
 
 	// Undocumented Fields Found In Responses
 	IsOriginalPackager []bool `json:"is_original_packager,omitempty" bson:"is_original_packager,omitempty"`
+}
+
+func (openFDA OpenFDA) IsHumanPresecriptionDrug() bool {
+	for _, tp := range openFDA.ProductType {
+		if tp == ProductTypeHumanPerscriptionDrug {
+			return true
+		}
+	}
+	return false
 }

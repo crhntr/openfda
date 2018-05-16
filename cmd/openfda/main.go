@@ -6,6 +6,12 @@ import (
 	"os"
 )
 
+const (
+	apiURL = "https://api.fda.gov"
+
+	downloadsFilePath = apiURL + "/download.json"
+)
+
 func main() {
 	flag.Parse()
 
@@ -13,16 +19,15 @@ func main() {
 	default:
 
 		fmt.Println("unknown argument")
-
+	case "create-test-data":
+		createTestData("10028364")
 	case "fetch-download-file":
 		fetchDownloadsFile()
 
 	case "drug":
-
 		switch flag.Arg(1) {
 
 		case "event":
-
 			switch flag.Arg(2) {
 
 			case "size":

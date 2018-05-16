@@ -14,7 +14,7 @@ func calcSize() {
 		_, pat = ShiftPath(pat) // event
 		qt, _ := ShiftPath(pat)
 		counts[qt] += part.Records
-		fmt.Printf("%10d %10f %s %s\n", part.Records, part.Size, qt, part.File)
+		// fmt.Printf("%10d %10f %s %s\n", part.Records, part.Size, qt, part.File)
 	}
 
 	for key, val := range counts {

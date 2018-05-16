@@ -31,13 +31,13 @@ func main() {
 			calcSize()
 		case "count-files":
 			var count int
-			eachFile(func(f *os.File) error {
+			eachDrugEventFile(func(f *os.File) error {
 				count++
 				return nil
 			})
 			fmt.Printf("\n\nfound %d files\n\n", count)
 		case "ls":
-			eachFile(func(f *os.File) error {
+			eachDrugEventFile(func(f *os.File) error {
 				fmt.Println(f.Name())
 				return nil
 			})
@@ -45,7 +45,7 @@ func main() {
 	}
 }
 
-func eachFile(fun func(f *os.File) error) {
+func eachDrugEventFile(fun func(f *os.File) error) {
 	downloads := openDownloads()
 
 	parts := downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter)

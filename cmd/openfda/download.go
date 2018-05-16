@@ -31,7 +31,7 @@ func downloadsFile() {
 
 	ensureDataDir()
 
-	downloadJSON, err := os.Create(dataDir + "/download.json")
+	downloadJSON, err := os.Create(path.Join(dataDir, "download.json"))
 	if err != nil {
 		log.Fatalf("could not create downloads file: %q", err)
 	}
@@ -76,7 +76,7 @@ func download() {
 }
 
 func openDownloads() Downloads {
-	f, err := os.Open(dataDir + "/download.json") // https://api.fda.gov/download.json
+	f, err := os.Open(path.Join(dataDir, "download.json")) // https://api.fda.gov/download.json
 	if err != nil {
 		panic(err)
 	}

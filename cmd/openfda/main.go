@@ -26,8 +26,8 @@ func main() {
 				download()
 			case "import-all":
 				importAll()
-			case "calc":
-				calcSize()
+			case "count":
+				countDrugEvents()
 			case "count-files":
 				var count int
 				eachDrugEventFile(func(f *os.File) error {

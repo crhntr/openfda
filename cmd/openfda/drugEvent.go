@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -26,5 +27,25 @@ func eachDrugEventFile(fun func(f *os.File) error) {
 				}
 			}()
 		}(i, p)
+	}
+}
+
+func countDrugEvents() {
+	counts := map[string]int{}
+	downloads := openDownloads()
+	fmt.Printf("parts: %d\n", len(downloads.Results.Drug.Event.Partitions))
+
+	for _, part := range downloads.Results.Drug.Event.Partitions {
+		_, pat := ShiftPath(part.File)
+		_, pat = ShiftPath(pat) // drug
+		_, pat = ShiftPath(pat) // event
+		_, pat = ShiftPath(pat) // event
+		qt, _ := ShiftPath(pat)
+		counts[qt] += part.Records
+		// fmt.Printf("%10d %10f %s %s\n", part.Records, part.Size, qt, part.File)
+	}
+
+	for key, val := range counts {
+		fmt.Printf("%s: %d\n", key, val)
 	}
 }

@@ -58,4 +58,8 @@ func createTestData(seedEventID string) {
 		}
 	}
 
+	// fetch relevant labels
+
+	// insert labels and events into database
+
 }

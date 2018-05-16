@@ -17,6 +17,9 @@ func eachDrugEventFile(fun func(f *os.File) error) {
 			filename := path.Join(*outPath, part.File[len(downloadsFilePath):len(part.File)-len(".zip")])
 			f, err := os.Open(filename)
 			if err != nil {
+				if os.IsNotExist(err) {
+					return
+				}
 				log.Printf("  %d %s %s", i, filename, err)
 				return
 			}

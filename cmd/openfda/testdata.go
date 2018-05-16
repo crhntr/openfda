@@ -94,7 +94,7 @@ func createTestData(search string) {
 			log.Printf("drug event request could not be made: %q", err)
 			continue
 		}
-		if lreq.StatusCode != http.StatusNotFound {
+		if lreq.StatusCode == http.StatusNotFound {
 			continue
 		}
 		if lreq.StatusCode != http.StatusOK {

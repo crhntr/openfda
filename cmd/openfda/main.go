@@ -18,6 +18,8 @@ var (
 func main() {
 	flag.Parse()
 	switch flag.Arg(0) {
+	default:
+		fmt.Println("unknown argument")
 	case "drug.event":
 		switch flag.Arg(1) {
 		case "size":

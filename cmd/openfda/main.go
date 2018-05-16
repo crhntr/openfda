@@ -20,6 +20,8 @@ func main() {
 	switch flag.Arg(0) {
 	default:
 		fmt.Println("unknown argument")
+	case "downloads-file":
+		downloadsFile()
 	case "drug.event":
 		switch flag.Arg(1) {
 		case "size":

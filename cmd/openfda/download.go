@@ -11,6 +11,34 @@ import (
 	"strings"
 )
 
+const dataDir = "openfda_data"
+
+func ensureDataDir() {
+	_, err := os.Stat(dataDir)
+	if os.IsNotExist(err) {
+		err := os.Mkdir(dataDir, 0700)
+		if err != nil {
+			log.Fatal("could not create data directory %s: %q", dataDir, err)
+		}
+	}
+}
+
+func downloadsFile() {
+	r, err := http.Get("https://api.fda.gov/download.json")
+	if err != nil {
+		log.Fatalf("could not get downloads file: %q", err)
+	}
+
+	ensureDataDir()
+
+	downloadJSON, err := os.Create(dataDir + "/download.json")
+	if err != nil {
+		log.Fatalf("could not create downloads file: %q", err)
+	}
+
+	io.Copy(downloadJSON, r.Body)
+}
+
 func download() {
 	downloads := OpenDownloads()
 	size := downloads.Results.Drug.Event.Size()

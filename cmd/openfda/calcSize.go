@@ -4,7 +4,7 @@ import "fmt"
 
 func calcSize() {
 	counts := map[string]int{}
-	downloads := OpenDownloads()
+	downloads := openDownloads()
 	fmt.Printf("parts: %d\n", len(downloads.Results.Drug.Event.Partitions))
 
 	for _, part := range downloads.Results.Drug.Event.Partitions {

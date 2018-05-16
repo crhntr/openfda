@@ -19,7 +19,7 @@ func main() {
 	case "drug.event":
 		switch flag.Arg(1) {
 		case "size":
-			downloads := OpenDownloads()
+			downloads := openDownloads()
 			fmt.Println(downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter).Size())
 		case "import":
 			importFiles()
@@ -46,7 +46,7 @@ func main() {
 }
 
 func eachFile(fun func(f *os.File) error) {
-	downloads := OpenDownloads()
+	downloads := openDownloads()
 
 	parts := downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter)
 

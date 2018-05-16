@@ -40,7 +40,7 @@ func downloadsFile() {
 }
 
 func download() {
-	downloads := OpenDownloads()
+	downloads := openDownloads()
 	size := downloads.Results.Drug.Event.Size()
 	var downlaoded float64
 
@@ -75,7 +75,7 @@ func download() {
 	}
 }
 
-func OpenDownloads() Downloads {
+func openDownloads() Downloads {
 	f, err := os.Open(dataDir + "/download.json") // https://api.fda.gov/download.json
 	if err != nil {
 		panic(err)

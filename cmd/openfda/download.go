@@ -13,23 +13,6 @@ import (
 
 const dataDir = "openfda_data"
 
-func ensureDataDir() {
-	dirPaths := []string{dataDir,
-		path.Join(dataDir, "drug"),
-		path.Join(dataDir, "drug", "event"),
-		path.Join(dataDir, "drug", "label"),
-	}
-
-	for _, pth := range dirPaths {
-		_, err := os.Stat(pth)
-		if os.IsNotExist(err) {
-			err := os.Mkdir(pth, 0700)
-			if err != nil {
-				log.Fatalf("could not create data directory %s: %q", pth, err)
-			}
-		}
-	}
-}
 
 func downloadsFile() {
 	r, err := http.Get(downloadsFilePath)

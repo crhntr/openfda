@@ -10,7 +10,7 @@ import (
 func eachDrugEventFile(fun func(f *os.File) error) {
 	downloads := openDownloads()
 
-	parts := downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter)
+	parts := downloads.Results.Drug.Event.Partitions.FilterDrugEvents(*year, *quarter)
 
 	for i, p := range parts {
 		func(i int, part Partition) {

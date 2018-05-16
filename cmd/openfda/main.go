@@ -27,7 +27,7 @@ func main() {
 
 			case "size":
 				downloads := openDownloads()
-				fmt.Println(downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter).Size())
+				fmt.Println(downloads.Results.Drug.Event.Partitions.FilterDrugEvents(*year, *quarter).Size())
 
 			case "import":
 				importFiles()

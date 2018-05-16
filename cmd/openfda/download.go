@@ -32,7 +32,7 @@ func loadDownloadFile() {
 	size := downloads.Results.Drug.Event.Size()
 	var downlaoded float64
 
-	parts := downloads.Results.Drug.Event.Partitions.Filter(*year, *quarter)
+	parts := downloads.Results.Drug.Event.Partitions.FilterDrugEvents(*year, *quarter)
 	fmt.Println(len(parts))
 	for i, part := range parts {
 		func(i int, part Partition) {
@@ -98,7 +98,7 @@ type Partition struct {
 	File    string  `json:"file"`
 }
 
-func (parts Partitions) Filter(year, quarter string) Partitions {
+func (parts Partitions) FilterDrugEvents(year, quarter string) Partitions {
 	var filteredParts Partitions
 
 	for _, part := range parts {

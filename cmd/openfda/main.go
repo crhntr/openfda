@@ -20,7 +20,7 @@ func main() {
 
 		fmt.Println("unknown argument")
 	case "create-test-data":
-		createTestData("10028364")
+		createTestData("patient.drug.openfda.brand_name:%22kalydeco%22+AND+receivedate:[20170901+TO+20171231]")
 	case "fetch-download-file":
 		fetchDownloadsFile()
 

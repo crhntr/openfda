@@ -21,10 +21,10 @@ func joinURL(segments ...string) string {
 }
 
 func ensureDataDir() {
-	dirPaths := []string{dataDir,
-		path.Join(dataDir, "drug"),
-		path.Join(dataDir, "drug", "event"),
-		path.Join(dataDir, "drug", "label"),
+	dirPaths := []string{*outPath,
+		path.Join(*outPath, "drug"),
+		path.Join(*outPath, "drug", "event"),
+		path.Join(*outPath, "drug", "label"),
 	}
 
 	for _, pth := range dirPaths {

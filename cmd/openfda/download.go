@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-const dataDir = "openfda_data"
-
 func fetchDownloadsFile() {
 	r, err := http.Get(downloadsFilePath)
 	if err != nil {
@@ -21,7 +19,7 @@ func fetchDownloadsFile() {
 
 	ensureDataDir()
 
-	downloadJSON, err := os.Create(path.Join(dataDir, "download.json"))
+	downloadJSON, err := os.Create(path.Join(*outPath, "download.json"))
 	if err != nil {
 		log.Fatalf("could not create downloads file: %q", err)
 	}
@@ -66,7 +64,7 @@ func loadDownloadFile() {
 }
 
 func openDownloads() Downloads {
-	f, err := os.Open(path.Join(dataDir, "download.json")) // https://api.fda.gov/download.json
+	f, err := os.Open(path.Join(*outPath, "download.json")) // https://api.fda.gov/download.json
 	if err != nil {
 		panic(err)
 	}

@@ -14,7 +14,7 @@ func eachDrugEventFile(fun func(f *os.File) error) {
 
 	for i, p := range parts {
 		func(i int, part Partition) {
-			filename := path.Join(*outPath, part.File[len("https://download.open.fda.gov/"):len(part.File)-len(".zip")])
+			filename := path.Join(*outPath, part.File[len(downloadsFilePath):len(part.File)-len(".zip")])
 			f, err := os.Open(filename)
 			if err != nil {
 				log.Printf("  %d %s %s", i, filename, err)

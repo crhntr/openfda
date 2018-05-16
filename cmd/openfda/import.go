@@ -18,7 +18,7 @@ func importArgsInFiles() {
 		return
 	}
 
-	for i, fileName := range flag.Args()[2:] {
+	for i, fileName := range flag.Args()[3:] {
 		if err := func(i int, filename string) error {
 			log.Printf("%d %q", i, fileName)
 

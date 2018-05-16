@@ -13,3 +13,7 @@ func ShiftPath(p string) (head, tail string) {
 	}
 	return p[1:i], p[i:]
 }
+
+func joinURL(segments ...string) string {
+	return strings.Join(segments, "/")
+}

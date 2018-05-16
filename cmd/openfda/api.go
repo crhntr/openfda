@@ -2,7 +2,8 @@ package main
 
 import (
 	"io"
-	"net/http"
+	"log"
+	"net/url"
 )
 
 const (
@@ -11,6 +12,12 @@ const (
 	downloadsFilePath = apiURL + "/download.json"
 )
 
-func apiRequest(endpoint string, limit int, then func(r io.Reader)) {
-	http.Get("")
+func apiRequest(endpoint string, search string, then func(r io.Reader) (bool, error)) {
+	path := joinURL(apiURL, "drug", endpoint)
+	reqURL, err := url.Parse(path)
+	if err != nil {
+		log.Fatalf("could not create url %q: %q", path, err)
+	}
+	reqURL.Query().Set("search", search)
+	log.Print(reqURL)
 }

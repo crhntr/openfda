@@ -25,7 +25,7 @@ func ensureDataDir() {
 		if os.IsNotExist(err) {
 			err := os.Mkdir(pth, 0700)
 			if err != nil {
-				log.Fatal("could not create data directory %s: %q", pth, err)
+				log.Fatalf("could not create data directory %s: %q", pth, err)
 			}
 		}
 	}

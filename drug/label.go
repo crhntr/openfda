@@ -108,7 +108,7 @@ type Label struct {
 	SPLUnclassifiedSection            []string `json:"spl_unclassified_section"` // openFD bson:"spl_unclassified_section,omitempty"` // openF,omitempty"A
 
 	// openFDA
-	// OpenFDA OpenFDA `json:"openfda,omitempty"`
+	OpenFDA OpenFDA `json:"openfda,omitempty"`
 }
 
 // func (label Label) String() string {

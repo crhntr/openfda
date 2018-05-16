@@ -7,5 +7,7 @@ var (
 	year    = flag.String("year", "", "year of files to download")
 	quarter = flag.String("quarter", "", "year of files to download")
 
-	limit = flag.Int("limit", 100, "limit number of downloads")
+	limit = flag.Int("limit", 100, "limit something")
+
+	search = flag.String("search", "", "search string for api query")
 )

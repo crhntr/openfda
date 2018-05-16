@@ -32,7 +32,7 @@ func ensureDataDir() {
 }
 
 func downloadsFile() {
-	r, err := http.Get("https://api.fda.gov/download.json")
+	r, err := http.Get(downloadsFilePath)
 	if err != nil {
 		log.Fatalf("could not get downloads file: %q", err)
 	}

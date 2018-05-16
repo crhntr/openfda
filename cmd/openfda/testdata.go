@@ -51,7 +51,7 @@ func createTestData(search string) {
 		if err != nil {
 			log.Fatalf("drug event request could not be made: %q", err)
 		}
-		if req.StatusCode != 200 {
+		if req.StatusCode != http.StatusOK {
 			fmt.Printf("drug event request not successful %q. Got http status %d\n\n", reqURL, req.StatusCode)
 			io.Copy(os.Stderr, req.Body)
 			os.Exit(1)
@@ -94,7 +94,10 @@ func createTestData(search string) {
 			log.Printf("drug event request could not be made: %q", err)
 			continue
 		}
-		if lreq.StatusCode != 200 {
+		if lreq.StatusCode != http.StatusNotFound {
+			continue
+		}
+		if lreq.StatusCode != http.StatusOK {
 			log.Printf("drug event request not successful %q. Got http status %d\n\n", lreqURL, lreq.StatusCode)
 			io.Copy(os.Stderr, lreq.Body)
 			continue

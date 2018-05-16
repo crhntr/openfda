@@ -14,9 +14,8 @@ func main() {
 
 		fmt.Println("unknown argument")
 
-	case "downloads-file":
-
-		downloadsFile()
+	case "fetch-download-file":
+		fetchDownloadsFile()
 
 	case "drug":
 
@@ -32,9 +31,6 @@ func main() {
 
 			case "import":
 				importFiles()
-
-			case "download":
-				download()
 
 			case "import-all":
 				importAll()

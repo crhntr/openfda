@@ -13,8 +13,7 @@ import (
 
 const dataDir = "openfda_data"
 
-
-func downloadsFile() {
+func fetchDownloadsFile() {
 	r, err := http.Get(downloadsFilePath)
 	if err != nil {
 		log.Fatalf("could not get downloads file: %q", err)
@@ -30,7 +29,7 @@ func downloadsFile() {
 	io.Copy(downloadJSON, r.Body)
 }
 
-func download() {
+func loadDownloadFile() {
 	downloads := openDownloads()
 	size := downloads.Results.Drug.Event.Size()
 	var downlaoded float64

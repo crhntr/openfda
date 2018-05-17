@@ -468,6 +468,24 @@ func insertDataToMySQL() {
 
 	}
 
+	{
+		dedupMap := make([]map[string]bool, len(patients))
+		for i := range dedupMap {
+			dedupMap[i] = make(map[string]bool)
+		}
+
+		pds := patientDrugs[:0]
+
+		for _, pd := range patientDrugs {
+			if _, ok := dedupMap[pd.PatientID][pd.SetID]; !ok {
+				pds = append(pds, pd)
+			}
+			dedupMap[pd.PatientID][pd.SetID] = true
+		}
+
+		patientDrugs = pds
+	}
+
 	endValue := func(i, l int) {
 		if i != l-1 {
 			fmt.Print(",\n")

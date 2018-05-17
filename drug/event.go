@@ -139,7 +139,7 @@ const (
 )
 
 type RawEvent struct {
-	SafetyReportID      string       `json:"safetyreport,omitempty" bson:"safetyreport,omitempty"`
+	SafetyReportID      string       `json:"safetyreportid,omitempty" bson:"safetyreportid,omitempty"`
 	SafetyReportVersion string       `json:"safetyreportversion,omitempty" bson:"safetyreportversion,omitempty"`
 	ReceiveDate         YearMonthDay `json:"receivedate,omitempty" bson:"receivedate,omitempty"`
 

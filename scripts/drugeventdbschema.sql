@@ -56,23 +56,49 @@ CREATE TABLE IF NOT EXISTS `drugeventdb`.`Ingredient` (
   PRIMARY KEY (`ingredient_id`))
 ENGINE = InnoDB;
 
-
 -- -----------------------------------------------------
 -- Table `drugeventdb`.`Drug`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `drugeventdb`.`Drug` (
-  `ndc` CHAR(12) NOT NULL,
-  `drug_brandname` VARCHAR(45) NULL,
-  `drug_genericname` VARCHAR(45) NULL,
-  `drug_manufacturer` INT NULL,
-  `application_number` INT NULL,
-  `splset_id` CHAR(36) NULL,
-  PRIMARY KEY (`ndc`),
-  INDEX `drug_manufacturer_idx` (`drug_manufacturer` ASC),
-  INDEX `drug_splset_id` (`splset_id` ASC),
-  CONSTRAINT `drug_manufacturer`
-    FOREIGN KEY (`drug_manufacturer`)
-    REFERENCES `drugeventdb`.`Manufacturer` (`manufacturer_id`)
+  `drug_splset_id` CHAR(36) NOT NULL,
+  PRIMARY KEY (`splset_id`),
+  INDEX `drug_splset_id_idx` (`drug_splset_id` ASC))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `drugeventdb`.`DrugName`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `drugeventdb`.`DrugName` (
+  `drug_name_id` INT NOT NULL,
+  `drug_name_splset_id`  CHAR(36) NOT NULL,
+  `drug_name_name` CHAR(127),
+  `drug_name_cutoff` TINYINT NOT NULL,
+  `drug_name_type` ENUM('Brand', 'Generic', 'Substance') NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `drug_name_idx` (`drug_name_name` ASC),
+  INDEX `drug_name_splset_id_idx` (`drug_name_splset_id` ASC),
+  CONSTRAINT `drug_name_splset_id`
+    FOREIGN KEY (`drug_name_splset_id`)
+    REFERENCES `drugeventdb`.`Drug` (`drug_splset_id`)
+) ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `drugeventdb`.`DrugClass`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `drugeventdb`.`DrugManufacturer` (
+  `drug_splset_id` CHAR(36) NOT NULL,
+  `manufacturers_id` INT NULL,
+  PRIMARY KEY (`drug_splset_id`, `manufacturers_id`),
+  INDEX `drug_splset_id_idx` (`drug_splset_id` ASC),
+  INDEX `manufacturers_id_idx` (`manufacturers_id` ASC),
+  CONSTRAINT `drug_splset_id`
+    FOREIGN KEY (`drug_splset_id`)
+    REFERENCES `drugeventdb`.`Drug` (`drug_splset_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `manufacturers_id`
+    FOREIGN KEY (`manufacturers_id`)
+    REFERENCES `drugeventdb`.`Manufacturer` (`manufacturers_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -82,18 +108,38 @@ ENGINE = InnoDB;
 -- Table `drugeventdb`.`DrugIngredient`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `drugeventdb`.`DrugIngredient` (
-  `ndc` CHAR(12) NOT NULL,
+  `splset_id` CHAR(12) NOT NULL,
   `ingredient_id` INT NOT NULL,
-  PRIMARY KEY (`ndc`, `ingredient_id`),
+  PRIMARY KEY (`splset_id`, `ingredient_id`),
   INDEX `di_ingredientId_idx` (`ingredient_id` ASC),
-  CONSTRAINT `di_ndc`
-    FOREIGN KEY (`ndc`)
-    REFERENCES `drugeventdb`.`Drug` (`ndc`)
+  CONSTRAINT `di_splset_id`
+    FOREIGN KEY (`splset_id`)
+    REFERENCES `drugeventdb`.`Drug` (`splset_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `di_ingredientId`
     FOREIGN KEY (`ingredient_id`)
     REFERENCES `drugeventdb`.`Ingredient` (`ingredient_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `drugeventdb`.`DrugManufacturer`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `drugeventdb`.`DrugManufacturer` (
+  `drug_splset_id` CHAR(12) NOT NULL,
+  `manufacturer_id` INT NOT NULL,
+  PRIMARY KEY (`drug_splset_id`, `ingredient_id`),
+  INDEX `drug_splset_id_idx` (`drug_splset_id` ASC),
+  CONSTRAINT `di_drug_splset_id`
+    FOREIGN KEY (`drug_splset_id`)
+    REFERENCES `drugeventdb`.`Drug` (`drug_splset_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `di_manufacturer_id`
+    FOREIGN KEY (`manufacturer_id`)
+    REFERENCES `drugeventdb`.`Manufacturer` (`manufacturer_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -118,7 +164,6 @@ CREATE TABLE IF NOT EXISTS `drugeventdb`.`DrugClass` (
   `class_id` INT NULL,
   PRIMARY KEY (`ndc`),
   INDEX `dc_classID_idx` (`class_id` ASC),
-  INDEX (),
   CONSTRAINT `dc_ndc`
     FOREIGN KEY (`ndc`)
     REFERENCES `drugeventdb`.`Drug` (`ndc`)
@@ -139,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `drugeventdb`.`Label` (
   `label_id` VARCHAR(45) NOT NULL,
   `splset_id` CHAR(36) NULL,
   `label_version` INT NULL,
-  `label_effectiveTime` DATE NULL,
+  -- `label_effectiveTime` DATE NULL,
   PRIMARY KEY (`label_id`),
   INDEX `label_splsetID_idx` (`splset_id` ASC),
   CONSTRAINT `label_splsetID`
@@ -210,7 +255,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `drugeventdb`.`Reaction` (
   `patient_id` INT NOT NULL,
   `term_id` INT NOT NULL,
-  `reaction_outcome` VARCHAR(45) NULL,
+  `reaction_outcome` INT NOT NULL,
   PRIMARY KEY (`patient_id`, `term_id`),
   INDEX `reaction_termid_idx` (`term_id` ASC),
   CONSTRAINT `reaction_patientid`
@@ -232,13 +277,12 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `drugeventdb`.`Event` (
   `event_id` CHAR(8) NOT NULL,
   `event_reportVrs` INT NOT NULL,
-  `ndc` CHAR(12) NULL,
   `event_receiveDate` DATE NULL,
   `event_receiptDate` DATE NULL,
   `event_transmissionDate` DATE NULL,
-  `event_duplicate` VARCHAR(45) NULL,
+  `event_duplicate` TINYINT NULL,
   `event_serious` TINYINT NULL,
-  `event_ serDeath` TINYINT NULL,
+  `event_serDeath` TINYINT NULL,
   `event_serDisabiling` TINYINT NULL,
   `event_serHospitalization` TINYINT NULL,
   `event_serLifeThreatening` TINYINT NULL,

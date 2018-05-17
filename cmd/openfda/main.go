@@ -22,6 +22,12 @@ func main() {
 	case "fetch-test-data":
 		createTestData("patient.drug.openfda.brand_name:%22kalydeco%22+AND+receivedate:[20170901+TO+20171231]")
 
+	case "insert-test-data":
+		switch flag.Arg(1) {
+		case "mysql":
+			insertDataToMySQL()
+		}
+
 	case "fetch-download-file":
 		fetchDownloadsFile()
 

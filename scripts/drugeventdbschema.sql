@@ -124,26 +124,6 @@ ENGINE = InnoDB;
 --     ON UPDATE NO ACTION)
 -- ENGINE = InnoDB;
 
--- -----------------------------------------------------
--- Table `drugeventdb`.`DrugManufacturer`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `drugeventdb`.`DrugManufacturer` (
-  `drug_splset_id` CHAR(36) NOT NULL,
-  `manufacturer_id` INT NOT NULL,
-  PRIMARY KEY (`drug_splset_id`, `ingredient_id`),
-  INDEX `drug_splset_id_idx` (`drug_splset_id` ASC),
-  CONSTRAINT `di_drug_splset_id`
-    FOREIGN KEY (`drug_splset_id`)
-    REFERENCES `drugeventdb`.`Drug` (`drug_splset_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `di_manufacturer_id`
-    FOREIGN KEY (`manufacturer_id`)
-    REFERENCES `drugeventdb`.`Manufacturer` (`manufacturer_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `drugeventdb`.`Class`

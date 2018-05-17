@@ -130,7 +130,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `drugeventdb`.`Class` (
   `class_id` INT NOT NULL,
-  `class_name` VARCHAR(45) NULL,
+  `class_name` VARCHAR(127) NULL,
   `class_type` VARCHAR(45) NULL,
   PRIMARY KEY (`class_id`))
 ENGINE = InnoDB;

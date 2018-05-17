@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -36,4 +38,22 @@ func ensureDataDir() {
 			}
 		}
 	}
+}
+
+func showTables(db *sql.DB) error {
+	var tables []string
+	rows, err := db.Query("SHOW TABLES")
+	if err != nil {
+		return fmt.Errorf("could not load tables: %q", err)
+	}
+	for rows.Next() {
+		var name string
+		rows.Scan(&name)
+		tables = append(tables, name)
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error iterating through rows: %q", err)
+	}
+	fmt.Println(tables)
+	return nil
 }

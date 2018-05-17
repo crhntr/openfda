@@ -173,20 +173,28 @@ func insertDataToMySQL() {
 		classesMap["pe"] = make(map[string]int)
 
 		for _, label := range drugLabels {
-			for _, cls := range label.OpenFDA.PharmClassCS {
-				classesMap["cs"][cls[:len(cls)-len(" [Chemical/Ingredient]")]] = -1
+			for i, cls := range label.OpenFDA.PharmClassCS {
+				cls = cls[:len(cls)-len(" [Chemical/Ingredient]")]
+				label.OpenFDA.PharmClassCS[i] = cls
+				classesMap["cs"][cls] = -1
 			}
 
-			for _, cls := range label.OpenFDA.PharmClassEPC {
-				classesMap["epc"][cls[:len(cls)-len(" [EPC]")]] = -1
+			for i, cls := range label.OpenFDA.PharmClassEPC {
+				cls = cls[:len(cls)-len(" [EPC]")]
+				label.OpenFDA.PharmClassEPC[i] = cls
+				classesMap["epc"][cls] = -1
 			}
 
-			for _, cls := range label.OpenFDA.PharmClassMOA {
-				classesMap["moa"][cls[:len(cls)-len(" [MoA]")]] = -1
+			for i, cls := range label.OpenFDA.PharmClassMOA {
+				cls = cls[:len(cls)-len(" [MoA]")]
+				label.OpenFDA.PharmClassMOA[i] = cls
+				classesMap["moa"][cls] = -1
 			}
 
-			for _, cls := range label.OpenFDA.PharmClassPE {
-				classesMap["pe"][cls[:len(cls)-len(" [PE]")]] = -1
+			for i, cls := range label.OpenFDA.PharmClassPE {
+				cls = cls[:len(cls)-len(" [PE]")]
+				label.OpenFDA.PharmClassPE[i] = cls
+				classesMap["pe"][cls] = -1
 			}
 		}
 

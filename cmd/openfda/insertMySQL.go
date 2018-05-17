@@ -512,14 +512,14 @@ func insertDataToMySQL() {
 	}
 
 	fmt.Print("\n-- drugNames\n\n")
-	fmt.Println("INSERT INTO Drug (drug_name_id, drug_name_splset_id, drug_name_name, drug_name_cutoff, drug_name_type)\nVALUES ")
+	fmt.Println("INSERT INTO DrugName (drug_name_id, drug_name_splset_id, drug_name_name, drug_name_cutoff, drug_name_type)\nVALUES ")
 	for i, item := range drugNames {
 		fmt.Printf("\t(%d, '%s', '%s', %d, '%s')", item.ID, item.SPLSetID, item.Name, ToTINYINT(item.Cuttoff), item.Type)
 		endValue(i, len(drugNames))
 	}
 
 	fmt.Print("\n-- drugManufacturers\n\n")
-	fmt.Println("INSERT INTO DrugManufacturer (drug_splset_id, manufacturers_id)\nVALUES ")
+	fmt.Println("INSERT INTO DrugManufacturer (drug_splset_id, manufacturer_id)\nVALUES ")
 	for i, item := range drugManufacturers {
 		fmt.Printf("\t('%s', %d)", item.SetID, item.ManufacturerID)
 		endValue(i, len(drugManufacturers))
@@ -533,7 +533,7 @@ func insertDataToMySQL() {
 	}
 
 	fmt.Print("\n-- labels\n\n")
-	fmt.Println("INSERT INTO Label (label_id, splset_id, label_version)\nVALUES ")
+	fmt.Println("INSERT INTO Label (label_id, drug_splset_id, label_version)\nVALUES ")
 	for i, item := range labels {
 		fmt.Printf("\t('%s', '%s', %d)", item.LabelID, item.SetID, item.LabelVersion)
 		endValue(i, len(labels))
@@ -547,7 +547,7 @@ func insertDataToMySQL() {
 	}
 
 	fmt.Print("\n-- patientDrugs\n\n")
-	fmt.Println("INSERT INTO PatientDrug (set_id, patient_id, action, characterization, route_id)\nVALUES ")
+	fmt.Println("INSERT INTO PatientDrug (drug_splset_id, patient_id, action, characterization, route_id)\nVALUES ")
 	for i, item := range patientDrugs {
 		fmt.Printf("\t('%s', %d, '%s', '%s', %d)", item.SetID, item.PatientID, item.Action, item.Characterization, item.RouteID)
 		endValue(i, len(patientDrugs))
@@ -568,7 +568,7 @@ func insertDataToMySQL() {
 	}
 
 	fmt.Print("\n-- events\n\n")
-	fmt.Println("INSERT INTO Event (event_id, event_reportVrs, event_duplicate, event_serious, event_serDeath, event_serDisabiling, event_serHospitalization, event_serLifeThreatening, event_serOther, event_country, event_patient)\nVALUES ")
+	fmt.Println("INSERT INTO Event (event_id, event_reportVrs, event_duplicate, event_serious, event_serDeath, event_serDisabiling, event_serHospitalization, event_serLifeThreatening, event_serOther, country_id, patient_id)\nVALUES ")
 	for i, item := range events {
 		fmt.Printf("\t('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d)",
 			item.ID,

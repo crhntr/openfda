@@ -58,6 +58,15 @@ END //
 DELIMITER ;
 
 DELIMITER //
+CREATE PROCEDURE `getEventsByAgeRange` (IN ageStart INT, IN ageEnd INT, IN ageUnits VARCHAR(45))
+BEGIN
+SELECT Patient.*, Event.* FROM Event
+JOIN Patient ON Patient.patient_id = Event.event_patient
+WHERE Patient.ageUnits = ageUnits AND Patient.age BETWEEN ageStart AND ageEnd;
+END //
+DELIMITER ;
+
+DELIMITER //
 CREATE PROCEDURE `getDrugEventCount` (IN drugName VARCHAR(45))
 BEGIN
 SELECT EventCountByNDC.* FROM EventCountByNDC
@@ -81,6 +90,15 @@ BEGIN
 	JOIN Term ON Term.term_id = Reaction.term_id
 	GROUP BY term_id
 	WHERE reaction LIKE Term.term;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE `patientReactions` (IN patient INT)
+BEGIN
+    SELECT Term.term AS 'Reaction', Reaction.reaction_outcome AS 'Outcome' FROM Reaction
+	JOIN Term ON Term.term_id = Reaction.term_id
+	WHERE patient = Reaction.patient_id;
 END //
 DELIMITER ;
 

@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
-	"time"
+	"strconv"
 
 	"github.com/crhntr/openfda/drug"
 )
@@ -73,14 +73,13 @@ func insertDataToMySQL() {
 	}
 	var countries []Country
 
-	countriesMap := make(map[string]bool)
+	countriesMap := make(map[string]int)
 	for _, event := range drugEvents {
-		if event.OccurCountry != "" {
-			countriesMap[event.OccurCountry] = true
-		}
+		countriesMap[event.OccurCountry] = -1
 	}
 
 	for key, _ := range countriesMap {
+		countriesMap[key] = len(countries)
 		countries = append(countries, Country{
 			ID: len(countries), Name: key,
 		})
@@ -92,14 +91,21 @@ func insertDataToMySQL() {
 	}
 	var routes []Route
 
-	routesMap := make(map[string]bool)
+	routesMap := make(map[string]int)
 	for _, label := range drugLabels {
 		for _, route := range label.OpenFDA.Route {
-			routesMap[route] = true
+			routesMap[route] = -1
+		}
+	}
+
+	for _, event := range drugEvents {
+		for _, ed := range event.Drugs {
+			routesMap[ed.AdministrationRoute] = -1
 		}
 	}
 
 	for key, _ := range routesMap {
+		routesMap[key] = len(routes)
 		routes = append(routes, Route{
 			ID: len(routes), Description: key,
 		})
@@ -114,45 +120,43 @@ func insertDataToMySQL() {
 
 	const MaxManufacturerLen = 45
 
-	{
-		manufacturersMap := make(map[string]bool)
-		for _, label := range drugLabels {
-			for _, mName := range label.OpenFDA.ManufacturerName {
-				if len(mName) > MaxManufacturerLen {
-					mName = mName[:MaxManufacturerLen]
-				}
-				manufacturersMap[mName] = true
+	manufacturersMap := make(map[string]bool)
+	for _, label := range drugLabels {
+		for _, mName := range label.OpenFDA.ManufacturerName {
+			if len(mName) > MaxManufacturerLen {
+				mName = mName[:MaxManufacturerLen]
 			}
-		}
-
-		for key, _ := range manufacturersMap {
-			manufacturers = append(manufacturers, Manufacturer{
-				ID: len(manufacturers), Name: key,
-			})
+			manufacturersMap[mName] = true
 		}
 	}
 
-	type Ingredient struct {
-		ID   int
-		Name string
+	for key, _ := range manufacturersMap {
+		manufacturers = append(manufacturers, Manufacturer{
+			ID: len(manufacturers), Name: key,
+		})
 	}
 
-	var ingredients []Ingredient
-
-	{
-		ingredientsMap := make(map[string]bool)
-		for _, label := range drugLabels {
-			for _, mName := range label.OpenFDA.SubstanceName {
-				ingredientsMap[mName] = true
-			}
-		}
-
-		for key, _ := range ingredientsMap {
-			ingredients = append(ingredients, Ingredient{
-				ID: len(ingredients), Name: key,
-			})
-		}
-	}
+	// type Ingredient struct {
+	// 	ID   int
+	// 	Name string
+	// }
+	//
+	// var ingredients []Ingredient
+	//
+	// {
+	// 	ingredientsMap := make(map[string]bool)
+	// 	for _, label := range drugLabels {
+	// 		for _, mName := range label.OpenFDA.SubstanceName {
+	// 			ingredientsMap[mName] = true
+	// 		}
+	// 	}
+	//
+	// 	for key, _ := range ingredientsMap {
+	// 		ingredients = append(ingredients, Ingredient{
+	// 			ID: len(ingredients), Name: key,
+	// 		})
+	// 	}
+	// }
 
 	type Class struct {
 		ID         int
@@ -331,28 +335,39 @@ func insertDataToMySQL() {
 		}
 	}
 
-	type DrugIngredient struct {
-		NDC          string
-		IngredientID int
+	type Term struct {
+		ID   int
+		Term string
+		// TermVersion int
+	}
+	var terms []Term
+
+	termsMap := make(map[string]int)
+	for _, e := range drugEvents {
+		for _, r := range e.Reactions {
+			termsMap[r.MedDRA] = -1
+		}
+	}
+
+	for term, _ := range termsMap {
+		termsMap[term] = len(terms)
+		terms = append(terms, Term{
+			ID:   len(terms),
+			Term: term,
+		})
 	}
 
 	type Patient struct {
-		ID, Age, AgeUnit int
-		Sex, DeathDate   string
+		ID                           int
+		Age, AgeUnit, Sex, DeathDate string
 	}
 
 	type PatientDrug struct {
-		NDC              string
+		SetID            string
 		PatientID        int
 		Action           string
 		Characterization string
 		RouteID          int
-	}
-
-	type Term struct {
-		ID          int
-		Term        string
-		TermVersion int
 	}
 
 	type Reaction struct {
@@ -365,53 +380,204 @@ func insertDataToMySQL() {
 		ID            string
 		ReportVersion int
 
-		ReceiveDatem, ReceiptDatem, TransmissionDate time.Time
+		// ReceiveDate, ReceiptDate, TransmissionDate time.Time
 
 		Duplicate, Serious, SerDeath, SerDisabiling, SerHospitalization, SerLifeThreatening, SerOther bool
 
-		CompanyID, Country, Patient int
+		// CompanyID int
+		Country, Patient int
 	}
 
-	fmt.Print("\ncountries\n\n")
+	var (
+		patients     []Patient
+		patientDrugs []PatientDrug
+		reactions    []Reaction
+		events       []Event
+	)
+
+	for _, dEvent := range drugEvents {
+
+		for _, r := range dEvent.Reactions {
+			outcome, err := strconv.Atoi(r.Outcome)
+			if err != nil {
+				outcome = 6
+			}
+
+			reactions = append(reactions, Reaction{
+				PatientID: len(patients),
+				TermID:    termsMap[r.MedDRA],
+				Outcome:   outcome,
+			})
+		}
+		version, err := strconv.Atoi(dEvent.SafetyReportVersion)
+		if err != nil {
+			version = 1
+		}
+
+		for _, deDrug := range dEvent.Drugs {
+			var drugID string
+
+			for _, drug := range drugs {
+				for _, id := range deDrug.OpenFDA.SPLSetID {
+					if id == drug.SPLSetID {
+						drugID = drug.SPLSetID
+						break
+					}
+				}
+			}
+			if drugID == "" {
+				continue
+			}
+
+			patientDrugs = append(patientDrugs, PatientDrug{
+				SetID:            drugID,
+				PatientID:        len(patients),
+				Action:           deDrug.ActionDrug,
+				Characterization: deDrug.Characterization,
+				RouteID:          routesMap[deDrug.AdministrationRoute],
+			})
+		}
+
+		events = append(events, Event{
+			ID:                 dEvent.SafetyReportID,
+			ReportVersion:      version,
+			Duplicate:          dEvent.Duplicate,
+			Serious:            (dEvent.Seriousness & drug.Serious) != 0,
+			SerDeath:           (dEvent.Seriousness & drug.Death) != 0,
+			SerDisabiling:      (dEvent.Seriousness & drug.Disabling) != 0,
+			SerHospitalization: (dEvent.Seriousness & drug.Hospitalization) != 0,
+			SerLifeThreatening: (dEvent.Seriousness & drug.LifeThreatening) != 0,
+			SerOther:           (dEvent.Seriousness & drug.Other) != 0,
+			Country:            countriesMap[dEvent.OccurCountry],
+			Patient:            len(patients),
+		})
+
+		patients = append(patients, Patient{
+			ID:  len(patients),
+			Age: dEvent.OnsetAge, AgeUnit: dEvent.OnsetAgeUnit,
+			Sex: dEvent.Sex,
+		})
+
+	}
+
+	endValue := func(i, l int) {
+		if i != l-1 {
+			fmt.Print(",\n")
+		} else {
+			fmt.Print(";\n\n\n")
+		}
+	}
+
+	fmt.Print("\n-- countries\n\n")
+	fmt.Println("INSERT INTO Country (country_id, country_name)\nVALUES ")
 	for i, item := range countries {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t(%d, '%s')", item.ID, item.Name)
+		endValue(i, len(countries))
 	}
-	fmt.Print("\nroutes\n\n")
+
+	fmt.Print("\n-- routes\n\n")
+	fmt.Println("INSERT INTO Route (route_id, route_description)\nVALUES ")
 	for i, item := range routes {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t(%d, '%s')", item.ID, item.Description)
+		endValue(i, len(routes))
 	}
-	fmt.Print("\nmanufacturers\n\n")
+
+	fmt.Print("\n-- manufacturers\n\n")
+	fmt.Println("INSERT INTO Manufacturer (manufacturer_id, manufacturer_name)\nVALUES ")
 	for i, item := range manufacturers {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t(%d, '%s')", item.ID, item.Name)
+		endValue(i, len(manufacturers))
 	}
-	fmt.Print("\ningredients\n\n")
-	for i, item := range ingredients {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
-	}
-	fmt.Print("\nclasses\n\n")
+
+	fmt.Print("\n-- classes\n\n")
+	fmt.Println("INSERT INTO Class (class_id, class_name, class_type)\nVALUES ")
 	for i, item := range classes {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t(%d, '%s', '%s')", item.ID, item.Name, item.Type)
+		endValue(i, len(classes))
 	}
-	fmt.Print("\ndrugs\n\n")
+
+	fmt.Print("\n-- drugs\n\n")
+	fmt.Println("INSERT INTO Drug (drug_splset_id)\nVALUES ")
 	for i, item := range drugs {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t('%s')", item.SPLSetID)
+		endValue(i, len(drugs))
 	}
-	fmt.Print("\ndrugNames\n\n")
+
+	fmt.Print("\n-- drugNames\n\n")
+	fmt.Println("INSERT INTO Drug (drug_name_id, drug_name_splset_id, drug_name_name, drug_name_cutoff, drug_name_type)\nVALUES ")
 	for i, item := range drugNames {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t(%d, '%s', '%s', %d, '%s')", item.ID, item.SPLSetID, item.Name, ToTINYINT(item.Cuttoff), item.Type)
+		endValue(i, len(drugNames))
 	}
-	fmt.Print("\ndrugManufacturers\n\n")
+
+	fmt.Print("\n-- drugManufacturers\n\n")
+	fmt.Println("INSERT INTO DrugManufacturer (drug_splset_id, manufacturers_id)\nVALUES ")
 	for i, item := range drugManufacturers {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t('%s', %d)", item.SetID, item.ManufacturerID)
+		endValue(i, len(drugManufacturers))
 	}
-	fmt.Print("\ndrugClasses\n\n")
+
+	fmt.Print("\n-- drugClasses\n\n")
+	fmt.Println("INSERT INTO DrugClass (drug_splset_id, class_id)\nVALUES ")
 	for i, item := range drugClasses {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t('%s', %d)", item.SetID, item.ClassID)
+		endValue(i, len(drugClasses))
 	}
-	fmt.Print("\nlabels\n\n")
+
+	fmt.Print("\n-- labels\n\n")
+	fmt.Println("INSERT INTO Label (label_id, splset_id, label_version)\nVALUES ")
 	for i, item := range labels {
-		fmt.Printf("%4d: %T %v\n", i, item, item)
+		fmt.Printf("\t('%s', '%s', %d)", item.LabelID, item.SetID, item.LabelVersion)
+		endValue(i, len(labels))
 	}
+
+	fmt.Print("\n-- patients\n\n")
+	fmt.Println("INSERT INTO Patient (patient_id, patient_age, patient_ageUnit, patient_sex)\nVALUES ")
+	for i, item := range patients {
+		fmt.Printf("\t(%d, '%s', '%s', '%s')", item.ID, item.Age, item.AgeUnit, item.Sex)
+		endValue(i, len(patients))
+	}
+
+	fmt.Print("\n-- patientDrugs\n\n")
+	fmt.Println("INSERT INTO PatientDrug (set_id, patient_id, action, characterization, route_id)\nVALUES ")
+	for i, item := range patientDrugs {
+		fmt.Printf("\t('%s', %d, '%s', '%s', %d)", item.SetID, item.PatientID, item.Action, item.Characterization, item.RouteID)
+		endValue(i, len(patientDrugs))
+	}
+
+	fmt.Print("\n-- terms\n\n")
+	fmt.Println("INSERT INTO Term (term_id, term)\nVALUES ")
+	for i, item := range terms {
+		fmt.Printf("\t(%d, '%s')", item.ID, item.Term)
+		endValue(i, len(terms))
+	}
+
+	fmt.Print("\n-- reactions\n\n")
+	fmt.Println("INSERT INTO Reaction (patient_id, term_id, reaction_outcome)\nVALUES ")
+	for i, item := range reactions {
+		fmt.Printf("\t(%d, %d, %d)", item.PatientID, item.TermID, item.Outcome)
+		endValue(i, len(reactions))
+	}
+
+	fmt.Print("\n-- events\n\n")
+	fmt.Println("INSERT INTO Event (event_id, event_reportVrs, event_duplicate, event_serious, event_serDeath, event_serDisabiling, event_serHospitalization, event_serLifeThreatening, event_serOther, event_country, event_patient)\nVALUES ")
+	for i, item := range events {
+		fmt.Printf("\t('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d)",
+			item.ID,
+			item.ReportVersion,
+			ToTINYINT(item.Duplicate),
+			ToTINYINT(item.Serious),
+			ToTINYINT(item.SerDeath),
+			ToTINYINT(item.SerDisabiling),
+			ToTINYINT(item.SerHospitalization),
+			ToTINYINT(item.SerLifeThreatening),
+			ToTINYINT(item.SerOther),
+			item.Country,
+			item.Patient,
+		)
+		endValue(i, len(events))
+	}
+
 	//
 	// db, err := getMySQLSession()
 	// if err != nil {

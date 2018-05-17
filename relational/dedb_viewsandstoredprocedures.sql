@@ -31,6 +31,12 @@ JOIN Patient ON PatientDrug.patient_id = Patient.patient_id
 JOIN Drug ON PatientDrug.ndc = Drug.ndc
 JOIN Route ON PatientDrug.route_id = Route.route_id;
 
+CREATE VIEW `DrugList` AS
+SELECT Drug.ndc AS 'NDC', Class.class_name AS 'Class', Manufacturer.manufacturer_name AS 'Drug Mfg', drug_brandname AS 'Brand Name', drug_genericname AS 'Generic Name' FROM Drug
+JOIN DrugClass ON Drug.ndc = DrugClass.ndc
+JOIN Class ON DrugClass.class_id = Class.class_id
+JOIN Manufacturer ON Drug.drug_manufacturer = Manufacturer.manufacturer_id;
+
 ----------STORED PROCEDURES----------
 
 DELIMITER //

@@ -17,10 +17,11 @@ func main() {
 
 	switch flag.Arg(0) {
 	default:
-
 		fmt.Println("unknown argument")
-	case "create-test-data":
+
+	case "fetch-test-data":
 		createTestData("patient.drug.openfda.brand_name:%22kalydeco%22+AND+receivedate:[20170901+TO+20171231]")
+
 	case "fetch-download-file":
 		fetchDownloadsFile()
 

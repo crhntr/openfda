@@ -9,6 +9,16 @@ count(event_serLifeThreatening) AS 'Life Threatening', count(event_serHospitaliz
 count(event_serOther) AS 'Other' FROM Event
 GROUP BY ndc ORDER BY count(ndc) DESC;
 
+CREATE VIEW `EventCountByClass` AS
+SELECT Class.class_name AS 'Drug Class', count(class_id) AS 'Total Events', count(event_serious) AS 'Serious', 
+count(event_serDeath) AS 'Deaths', count(event_serDisabiling) AS 'Disabiling',
+count(event_serLifeThreatening) AS 'Life Threatening', count(event_serHospitalization) AS 'Hospitalization',
+count(event_serOther) AS 'Other' FROM Event
+JOIN Drug ON Event.ndc = Drug.ndc
+JOIN DrugClass ON Drug.ndc = DrugClass.ndc
+JOIN Class ON DrugClass.class_id = Class.class_id
+GROUP BY Class.class_id ORDER BY count(class_id) DESC;
+
 CREATE VIEW `FrequentReactions` AS
 SELECT Term.term AS 'Reaction', count(patient_id) AS 'Number of Patients' FROM Reaction
 JOIN Term ON Term.term_id = Reaction.term_id

@@ -10,7 +10,7 @@ count(event_serOther) AS 'Other' FROM Event
 GROUP BY ndc ORDER BY count(ndc) DESC;
 
 CREATE VIEW `FrequentReactions` AS
-SELECT Term.term_id AS 'Reaction', count(patient_id) AS 'Number of Patients' FROM Reaction
+SELECT Term.term AS 'Reaction', count(patient_id) AS 'Number of Patients' FROM Reaction
 JOIN Term ON Term.term_id = Reaction.term_id
 GROUP BY term_id
 ORDER BY count(patient_id) DESC;
@@ -59,10 +59,12 @@ END //
 DELIMITER ;
 
 DELIMITER //
-CREATE PROCEDURE `outcomeCount` (IN outcome VARCHAR(45))
+CREATE PROCEDURE `reactionCount` (IN reaction VARCHAR(45))
 BEGIN
-	SELECT count(patient_id) AS count FROM Reaction
-    WHERE outcome LIKE reaction_outcome;
+    SELECT count(patient_id) AS count FROM Reaction
+	JOIN Term ON Term.term_id = Reaction.term_id
+	GROUP BY term_id
+	WHERE reaction LIKE Term.term;
 END //
 DELIMITER ;
 

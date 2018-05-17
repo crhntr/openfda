@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 
 	"github.com/crhntr/openfda/drug"
 )
@@ -46,7 +47,7 @@ func createTestData(search string) {
 			reqURL += fmt.Sprintf("&skip=%d", skip)
 		}
 
-		log.Printf("requesting %q", reqURL)
+		// log.Printf("requesting %q", reqURL)
 		req, err := http.Get(reqURL)
 		if err != nil {
 			log.Fatalf("drug event request could not be made: %q", err)
@@ -118,6 +119,51 @@ func createTestData(search string) {
 
 	fmt.Println(len(labels))
 	fmt.Println(len(events))
+
+	for key, label := range labels {
+		if key == "" {
+			continue
+		}
+		outp := path.Join(*outPath, "drug", "label", key+".json")
+
+		f, err := os.Create(outp)
+		if err != nil {
+			if !os.IsExist(err) {
+				f, err = os.Open(outp)
+			}
+			if err != nil {
+				log.Printf("Error creating label file for %q: %q", key, err)
+			}
+		}
+
+		if err := json.NewEncoder(f).Encode(label); err != nil {
+			log.Printf("Error encoding json for label %q: %q", key, err)
+		}
+		f.Close()
+	}
+
+	for _, event := range events {
+		if event.SafetyReportID == "" {
+			continue
+		}
+
+		outp := path.Join(*outPath, "drug", "event", event.SafetyReportID+".json")
+
+		f, err := os.Create(outp)
+		if err != nil {
+			if !os.IsExist(err) {
+				f, err = os.Open(outp)
+			}
+			if err != nil {
+				log.Printf("Error creating event file for %q: %q", event.SafetyReportID, err)
+			}
+		}
+
+		if err := json.NewEncoder(f).Encode(event); err != nil {
+			log.Printf("Error encoding json for label %q: %q", event.SafetyReportID, err)
+		}
+		f.Close()
+	}
 
 	// insert labels and events into database
 

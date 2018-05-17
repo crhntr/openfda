@@ -79,10 +79,11 @@ func createTestData(search string) {
 
 	for _, event := range events {
 		for _, drg := range event.Drugs {
-			if drg.OpenFDA.IsHumanPresecriptionDrug() && len(drg.OpenFDA.BrandName) == 1 {
-				if len(drg.OpenFDA.SPLSetID) > 0 {
-					labels[drg.OpenFDA.SPLSetID[0]] = drug.Label{}
-				}
+			if drg.OpenFDA.IsHumanPresecriptionDrug() &&
+				len(drg.OpenFDA.BrandName) == 1 &&
+				len(drg.OpenFDA.SPLSetID) > 0 {
+
+				labels[drg.OpenFDA.SPLSetID[0]] = drug.Label{}
 			}
 		}
 	}

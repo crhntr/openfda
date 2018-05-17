@@ -40,6 +40,15 @@ func ensureDataDir() {
 	}
 }
 
+func getMySQLSession() (*sql.DB, error) {
+	db, err := sql.Open("mysql", "root:root@/drugeventdb")
+	if err != nil {
+		return db, fmt.Errorf("could not connect to MySQL database: %q", err)
+	}
+
+	return db, nil
+}
+
 func showTables(db *sql.DB) error {
 	var tables []string
 	rows, err := db.Query("SHOW TABLES")

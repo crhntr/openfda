@@ -15,6 +15,8 @@ import (
 func createTestData(search string) {
 	var events []drug.Event
 
+	ensureDataDir()
+
 	type EventRequestResponse struct {
 		Meta struct {
 			Results struct {
@@ -90,7 +92,7 @@ func createTestData(search string) {
 	}
 
 	for splSetID, _ := range labels {
-		lreqURL := joinURL(apiURL, "drug", "label.json") + "&search=openfda.spl_set_id:%22" + splSetID + "%22"
+		lreqURL := joinURL(apiURL, "drug", "label.json") + "?search=openfda.spl_set_id:%22" + splSetID + "%22"
 		lreq, err := http.Get(lreqURL)
 		if err != nil {
 			log.Printf("drug event request could not be made: %q", err)

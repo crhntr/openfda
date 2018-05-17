@@ -66,3 +66,10 @@ func showTables(db *sql.DB) error {
 	fmt.Println(tables)
 	return nil
 }
+
+func ToTINYINT(val bool) int {
+	if val {
+		return 1
+	}
+	return 0
+}

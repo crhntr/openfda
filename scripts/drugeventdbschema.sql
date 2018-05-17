@@ -223,7 +223,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `drugeventdb`.`Term` (
   `term_id` INT NOT NULL,
-  `term` VARCHAR(45) NULL,
+  `term` VARCHAR(127) NULL,
   PRIMARY KEY (`term_id`))
 ENGINE = InnoDB;
 

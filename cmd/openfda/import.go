@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
+	"github.com/globalsign/mgo"
 	"io"
 	"log"
 	"os"
 
 	"github.com/crhntr/openfda/drug"
-	"github.com/globalsign/mgo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func importArgsInFiles() {
-	session, err := mgo.Dial(":27017")
+	ctx := context.Background()
+	session, err := mongo.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -59,7 +62,7 @@ func importArgsInFiles() {
 				event := rawEvent.Event()
 				event.FileName = fileName
 
-				if err := session.DB("openfda").C("drug_event").Insert(event); err != nil {
+				if _, err := session.Database("openfda").Collection("drug_event").InsertOne(ctx, event); err != nil {
 					if !mgo.IsDup(err) {
 						log.Printf("%d %s %s %s", i, event.SafetyReportID, filename, err)
 					}
@@ -69,7 +72,6 @@ func importArgsInFiles() {
 					return nil
 				}
 			}
-			return nil
 		}(i, fileName); err != nil {
 			log.Printf("%d %s %s", i, fileName, err)
 		}
@@ -193,6 +195,5 @@ func importAll() {
 				return nil
 			}
 		}
-		return nil
 	})
 }
